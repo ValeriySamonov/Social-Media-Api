@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: createPostTable
+      author: VVS
+      changes:
+        - createTable:
+            tableName: posts
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: title
+                  type: VARCHAR(255)
+              - column:
+                  name: text
+                  type: TEXT
+              - column:
+                  name: user_id
+                  type: BIGINT
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+            foreignKeys:
+              - foreignKey:
+                  baseTableName: posts
+                  baseColumnNames: user_id
+                  referencedTableName: users
+                  referencedColumnNames: id

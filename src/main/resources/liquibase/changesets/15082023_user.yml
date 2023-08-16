@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: createUserTable
+      author: VVS
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: username
+                  type: VARCHAR(100)
+              - column:
+                  name: email
+                  type: VARCHAR(100)
+              - column:
+                  name: password_hash
+                  type: VARCHAR(100)

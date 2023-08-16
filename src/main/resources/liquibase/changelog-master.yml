@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - include:
+      file: liquibase/changesets/15082023_user.yml
+  - include:
+      file: liquibase/changesets/15082023_post.yml
+  - include:
+      file: liquibase/changesets/15082023_post_image.yml
+  - include:
+      file: liquibase/changesets/15082023_friendship.yml
+  - include:
+      file: liquibase/changesets/15082023_user_activity.yml
