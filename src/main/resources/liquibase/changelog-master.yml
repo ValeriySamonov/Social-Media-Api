@@ -9,3 +9,5 @@ databaseChangeLog:
       file: liquibase/changesets/15082023_friendship.yml
   - include:
       file: liquibase/changesets/15082023_user_activity.yml
+  - include:
+      file: liquibase/changesets/16082023_subscription.yml

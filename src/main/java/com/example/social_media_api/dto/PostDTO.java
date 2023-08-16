@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 public class PostDTO {
-    private Long id;
+/*    private Long id;*/
     private Long userId;
     private String title;
     private String text;

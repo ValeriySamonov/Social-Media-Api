@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: createSubscriptionTable
+      author: VVS
+      changes:
+        - createTable:
+            tableName: subscriptions
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: subscriber_id
+                  type: bigint
+                  constraints:
+                    references: users(id)
+                    foreignKeyName: fk_subscriber
+              - column:
+                  name: target_user_id
+                  type: bigint
+                  constraints:
+                    references: users(id)
+                    foreignKeyName: fk_target_user
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP

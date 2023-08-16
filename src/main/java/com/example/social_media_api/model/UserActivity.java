@@ -1,5 +1,6 @@
 package com.example.social_media_api.model;
 
+import com.example.social_media_api.enums.ActivityType;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -18,7 +19,7 @@ public class UserActivity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    private String activityType;
+    private ActivityType activityType;
     private Long activityId;
     private LocalDateTime createdAt;
 
