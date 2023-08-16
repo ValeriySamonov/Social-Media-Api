@@ -23,7 +23,7 @@ public class Friendship {
     @JoinColumn(name = "friend_id")
     private User friend;
 
-    private FriendshipStatus friendshipStatus;
+    private FriendshipStatus status;
     private LocalDateTime createdAt;
 
 }

@@ -1,15 +1,10 @@
 package com.example.social_media_api.service;
 
-import com.example.social_media_api.dto.CreatePostDTO;
-import com.example.social_media_api.dto.CreateUserDTO;
-import com.example.social_media_api.dto.PostDTO;
-import com.example.social_media_api.dto.UpdatePostDTO;
-import com.example.social_media_api.model.Post;
-import com.example.social_media_api.model.PostImage;
-import com.example.social_media_api.model.User;
+import com.example.social_media_api.dto.*;
+import com.example.social_media_api.enums.FriendshipStatus;
+import com.example.social_media_api.model.*;
 import com.example.social_media_api.repository.*;
 import com.example.social_media_api.utilities.ServiceUtilities;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -21,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class SocialMediaServiceImpl implements SocialMediaService {
@@ -37,12 +31,11 @@ public class SocialMediaServiceImpl implements SocialMediaService {
     private final FriendshipRepository friendshipRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final ModelMapper modelMapper;
-    private final ObjectMapper objectMapper;
 
     public SocialMediaServiceImpl(ServiceUtilities serviceUtilities, UserRepository userRepository, PostImageRepository postImageRepository,
                                   UserActivityRepository userActivityRepository,
                                   PostRepository postRepository, FriendshipRepository friendshipRepository,
-                                  SubscriptionRepository subscriptionRepository, ModelMapper modelMapper, ObjectMapper objectMapper) {
+                                  SubscriptionRepository subscriptionRepository, ModelMapper modelMapper) {
         this.serviceUtilities = serviceUtilities;
         this.userRepository = userRepository;
         this.postImageRepository = postImageRepository;
@@ -51,7 +44,6 @@ public class SocialMediaServiceImpl implements SocialMediaService {
         this.friendshipRepository = friendshipRepository;
         this.subscriptionRepository = subscriptionRepository;
         this.modelMapper = modelMapper;
-        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -88,37 +80,12 @@ public class SocialMediaServiceImpl implements SocialMediaService {
     }
 
     @Override
-    public void sendSubscriptionRequest(Long targetUserId) {
-
-    }
-
-    @Override
-    public void acceptSubscriptionRequest(Long subscriberId) {
-
-    }
-
-    @Override
-    public void declineSubscriptionRequest(Long subscriberId) {
-
-    }
-
-    @Override
-    public void removeFriend(Long friendId) {
-
-    }
-
-
-    @Override
     public void updatePost(Long postId, UpdatePostDTO updatePostDTO, List<MultipartFile> addedFiles) {
         User user = userRepository.findById(1L).orElseThrow();
         Post post = postRepository.findByUserAndId(user, postId);
 
-        System.out.println("Added files" + addedFiles);
-
         post.setTitle(updatePostDTO.getTitle());
         post.setText(updatePostDTO.getText());
-
-        System.out.println("Files for deleting" + updatePostDTO.getRemovedFileIds());
 
         if (addedFiles != null && !addedFiles.isEmpty()) {
 
@@ -128,9 +95,7 @@ public class SocialMediaServiceImpl implements SocialMediaService {
         if (updatePostDTO.getRemovedFileIds() != null && !updatePostDTO.getRemovedFileIds().isEmpty()) {
             List<PostImage> removedImages = post.getImages().stream()
                     .filter(image -> updatePostDTO.getRemovedFileIds().contains(image.getId()))
-                    .collect(Collectors.toList());
-
-            System.out.println(removedImages);
+                    .toList();
 
             post.getImages().removeAll(removedImages);
             postImageRepository.deleteAll(removedImages);
@@ -147,9 +112,88 @@ public class SocialMediaServiceImpl implements SocialMediaService {
     public void deletePost(Long postId) {
         User user = userRepository.findById(1L).orElseThrow();
         Post post = postRepository.findByUserAndId(user, postId);
+
+        List<PostImage> removedImages = post.getImages();
+        for (PostImage removedImage : removedImages) {
+            serviceUtilities.deleteImageFromDirectory(removedImage.getFileName());
+        }
+
         postRepository.delete(post);
     }
 
+    @Override
+    public void sendFriendshipRequest(Long targetUserId) {
+        User subscriber = userRepository.findById(1L).orElseThrow(); // Получите текущего пользователя (подписчика)
+        User targetUser = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new EntityNotFoundException("User with ID " + targetUserId + " not found"));
 
+        if (subscriber.getId().equals(targetUser.getId())) {
+            throw new IllegalArgumentException("Вы не можете подписаться на себя");
+        }
+
+        Subscription subscription = new Subscription();
+        Friendship friendship = new Friendship();
+
+        subscription.setSubscriber(subscriber);
+        subscription.setTargetUser(targetUser);
+        subscription.setCreatedAt(LocalDateTime.now());
+
+        friendship.setUser(subscriber);
+        friendship.setFriend(targetUser);
+        friendship.setStatus(FriendshipStatus.PENDING); // Устанавливаем статус "pending"
+        friendship.setCreatedAt(LocalDateTime.now());
+
+        subscriptionRepository.save(subscription);
+        friendshipRepository.save(friendship);
+    }
+
+    @Override
+    public void acceptFriendshipRequest(Long subscriberId) {
+        User user = userRepository.findById(2L).orElseThrow(); // Получите текущего пользователя (подписчика)
+        Friendship friendship = friendshipRepository.findByUserIdAndFriendId(subscriberId, user.getId());
+        if (friendship == null) {
+            throw new NullPointerException("У вас нет ожидающих подтверждения запросов на дружбу");
+        }
+        friendship.setStatus(FriendshipStatus.ACCEPTED);
+        friendship.setCreatedAt(LocalDateTime.now());
+
+        User subscriber = userRepository.findById(subscriberId).orElseThrow();
+
+        Subscription subscription = new Subscription();
+        subscription.setSubscriber(user);
+        subscription.setTargetUser(subscriber);
+        subscription.setCreatedAt(LocalDateTime.now());
+
+        subscriptionRepository.save(subscription);
+        friendshipRepository.save(friendship);
+    }
+
+    @Override
+    public void declineFriendshipRequest(Long subscriberId) {
+        User user = userRepository.findById(2L).orElseThrow(); // Получите текущего пользователя (подписчика)
+        Friendship friendship = friendshipRepository.findByUserIdAndFriendId(subscriberId, user.getId());
+        if (friendship == null) {
+            throw new NullPointerException("У вас нет ожидающих непринятия запросов на дружбу");
+        }
+        friendshipRepository.delete(friendship);
+    }
+
+    @Override
+    public void removeFriend(Long friendId) {
+        User user = userRepository.findById(2L).orElseThrow(); // Получите текущего пользователя (подписчика)
+        Friendship friendship = friendshipRepository.findByUserIdAndFriendId(friendId, user.getId());
+        if (friendship == null) {
+            throw new NullPointerException("У вас нет ожидающих непринятия запросов на дружбу");
+        } else if (friendship.getStatus() != FriendshipStatus.ACCEPTED) {
+            throw new IllegalArgumentException("У вас нет такого друга");
+        }
+        subscriptionRepository.delete(subscriptionRepository.findBySubscriberIdAndTargetUserId(user.getId(), friendId));
+        friendshipRepository.delete(friendship);
+    }
+
+    @Override
+    public void sendMessage(Long recipientId, MessageDTO messageDTO) {
+
+    }
 
 }

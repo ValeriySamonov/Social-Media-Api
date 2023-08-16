@@ -1,7 +1,6 @@
 package com.example.social_media_api.controller;
 
 import com.example.social_media_api.dto.*;
-import com.example.social_media_api.model.UserActivity;
 import com.example.social_media_api.service.SocialMediaService;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.data.domain.Page;
@@ -69,37 +68,45 @@ public class SocialMediaController {
     }
 
     // Отправка запроса на подписку (добавление в друзья)
-    @PostMapping("/subscribe/{targetUserId}")
-    public ResponseEntity<String> sendSubscriptionRequest(
+    @PostMapping("/friendship/{targetUserId}")
+    public ResponseEntity<String> sendFriendshipRequest(
             @PathVariable Long targetUserId) {
-        socialMediaService.sendSubscriptionRequest(targetUserId);
-        return ResponseEntity.ok("Запрос на подписку отправлен");
+        socialMediaService.sendFriendshipRequest(targetUserId);
+        return ResponseEntity.ok("Запрос на дружбу отправлен");
     }
 
 
     // Принятие запроса на подписку (подтверждение дружбы)
-    @PostMapping("/subscribe/accept/{subscriberId}")
-    public ResponseEntity<String> acceptSubscriptionRequest(
+    @PostMapping("/friendship/accept/{subscriberId}")
+    public ResponseEntity<String> acceptFriendshipRequest(
             @PathVariable Long subscriberId) {
-        socialMediaService.acceptSubscriptionRequest(subscriberId);
-        return ResponseEntity.ok("Запрос на подписку принят");
+        socialMediaService.acceptFriendshipRequest(subscriberId);
+        return ResponseEntity.ok("Запрос на дружбу принят");
     }
 
 
     // Отклонение запроса на подписку (отклонение дружбы)
-    @PostMapping("/subscribe/reject/{subscriberId}")
-    public ResponseEntity<String> declineSubscriptionRequest(
+    @PostMapping("/friendship/reject/{subscriberId}")
+    public ResponseEntity<String> declineFriendshipRequest(
             @PathVariable Long subscriberId) {
-        socialMediaService.declineSubscriptionRequest(subscriberId);
-        return ResponseEntity.ok("Запрос на подписку отклонен");
+        socialMediaService.declineFriendshipRequest(subscriberId);
+        return ResponseEntity.ok("Запрос на дружбу отклонен");
     }
 
     // Удаление друга (отписка)
-    @DeleteMapping("/unsubscribe/{friendId}")
+    @DeleteMapping("/friendship/{friendId}")
     public ResponseEntity<String> removeFriend(
             @PathVariable Long friendId) {
         socialMediaService.removeFriend(friendId);
         return ResponseEntity.ok("Вы больше не друзья");
+    }
+
+    // Отправка сообщения по ID пользователя
+    @PostMapping("/message/{recipientId}")
+    public ResponseEntity<String> sendMessage(
+            @PathVariable Long recipientId, @RequestBody MessageDTO messageDTO) {
+        socialMediaService.sendMessage(recipientId, messageDTO);
+        return ResponseEntity.ok("Сообщение успешно отправлено");
     }
 
 }
