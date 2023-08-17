@@ -6,6 +6,7 @@ import java.util.List;
 
 @Data
 public class UpdatePostDTO {
+    private Long userId;
     private String title;
     private String text;
     private List<Long> removedFileIds;
