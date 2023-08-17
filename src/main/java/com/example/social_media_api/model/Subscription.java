@@ -6,20 +6,24 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "user_activities")
+@Table(name = "subscriptions")
 @Data
-public class UserActivity {
+public class Subscription {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "subscriber_id")
+    private User subscriber;
 
-    private String activityType;
-    private Long activityId;
+    @ManyToOne
+    @JoinColumn(name = "target_user_id")
+    private User targetUser;
+
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
 }
+

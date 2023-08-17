@@ -1,5 +1,6 @@
 package com.example.social_media_api.model;
 
+import com.example.social_media_api.enums.FriendshipStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -22,7 +23,7 @@ public class Friendship {
     @JoinColumn(name = "friend_id")
     private User friend;
 
-    private String status;
+    private FriendshipStatus status;
     private LocalDateTime createdAt;
 
 }

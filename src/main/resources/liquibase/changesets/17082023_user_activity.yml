@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - changeSet:
+      id: removeUserActivitiesTable
+      author: VVS
+      changes:
+        - dropTable:
+            tableName: user_activities
