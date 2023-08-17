@@ -1,8 +1,9 @@
 package com.example.social_media_api.controller;
 
-import com.example.social_media_api.dto.*;
+import com.example.social_media_api.dto.post.CreatePostDTO;
+import com.example.social_media_api.dto.post.PostDTO;
+import com.example.social_media_api.dto.post.UpdatePostDTO;
 import com.example.social_media_api.service.SocialMediaService;
-import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,20 +22,13 @@ public class SocialMediaController {
         this.socialMediaService = socialMediaService;
     }
 
-
-    // Создание пользователя
-    @PostMapping("/users")
-    public ResponseEntity<String> createUser(@RequestBody CreateUserDTO createUserDTO) {
-        socialMediaService.createUser(createUserDTO);
-        return ResponseEntity.ok("Пользователь успешно создан");
-    }
-
     // Создание поста
-    @PostMapping(value = "/posts", consumes = "multipart/form-data")
+    @PostMapping(value = "/posts/{creatorId}", consumes = "multipart/form-data")
     public ResponseEntity<String> createPost(
-            @ModelAttribute @Schema CreatePostDTO createPostDTO,
+            @PathVariable Long creatorId,
+            @ModelAttribute CreatePostDTO createPostDTO,
             @RequestParam(name = "files", required = false) List<MultipartFile> files) {
-        socialMediaService.createPost(createPostDTO, files);
+        socialMediaService.createPost(creatorId, createPostDTO, files);
         return ResponseEntity.ok("Пост успешно опубликован");
     }
 
@@ -101,12 +95,14 @@ public class SocialMediaController {
         return ResponseEntity.ok("Вы больше не друзья");
     }
 
-    // Отправка сообщения по ID пользователя
-    @PostMapping("/message/{recipientId}")
-    public ResponseEntity<String> sendMessage(
-            @PathVariable Long recipientId, @RequestBody MessageDTO messageDTO) {
-        socialMediaService.sendMessage(recipientId, messageDTO);
-        return ResponseEntity.ok("Сообщение успешно отправлено");
+    //Лента активности
+    @GetMapping("/activity-feed/{userId}")
+    public ResponseEntity<Page<PostDTO>> getUserActivityFeed(
+            @PathVariable Long userId,
+            @RequestParam(value = "page", required = false, defaultValue = "0") int page) {
+        Page<PostDTO> activityFeed = socialMediaService.getUserActivityFeed(userId, page);
+        return ResponseEntity.ok(activityFeed);
     }
+
 
 }

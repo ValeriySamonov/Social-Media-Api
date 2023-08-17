@@ -14,6 +14,6 @@ public class SocialMediaConfig {
 
     @Bean
     public ServiceUtilities serviceUtilities() {
-        return new ServiceUtilities();
+        return new ServiceUtilities(new ModelMapper());
     }
 }

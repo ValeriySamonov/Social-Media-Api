@@ -1,4 +1,4 @@
-package com.example.social_media_api.dto;
+package com.example.social_media_api.dto.post;
 
 import lombok.Data;
 
@@ -7,8 +7,9 @@ import java.util.List;
 
 @Data
 public class PostDTO {
-/*    private Long id;*/
+    private Long id;
     private Long userId;
+    private String username;
     private String title;
     private String text;
     private LocalDateTime createdAt;

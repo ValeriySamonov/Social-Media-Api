@@ -1,16 +1,18 @@
 package com.example.social_media_api.service;
 
-import com.example.social_media_api.dto.*;
+import com.example.social_media_api.dto.message.MessageDTO;
+import com.example.social_media_api.dto.post.CreatePostDTO;
+import com.example.social_media_api.dto.post.PostDTO;
+import com.example.social_media_api.dto.post.UpdatePostDTO;
+import com.example.social_media_api.dto.user.CreateUserDTO;
 import com.example.social_media_api.enums.FriendshipStatus;
+import com.example.social_media_api.enums.PageSize;
 import com.example.social_media_api.model.*;
 import com.example.social_media_api.repository.*;
 import com.example.social_media_api.utilities.ServiceUtilities;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,29 +22,31 @@ import java.util.List;
 @Service
 public class SocialMediaServiceImpl implements SocialMediaService {
 
-    private static final int PAGE_SIZE = 10;
-
     private final ServiceUtilities serviceUtilities;
 
     private final UserRepository userRepository;
     private final PostImageRepository postImageRepository;
-    private final UserActivityRepository userActivityRepository;
     private final PostRepository postRepository;
     private final FriendshipRepository friendshipRepository;
     private final SubscriptionRepository subscriptionRepository;
+    private final MessageRepository messageRepository;
     private final ModelMapper modelMapper;
 
-    public SocialMediaServiceImpl(ServiceUtilities serviceUtilities, UserRepository userRepository, PostImageRepository postImageRepository,
-                                  UserActivityRepository userActivityRepository,
-                                  PostRepository postRepository, FriendshipRepository friendshipRepository,
-                                  SubscriptionRepository subscriptionRepository, ModelMapper modelMapper) {
+    public SocialMediaServiceImpl(ServiceUtilities serviceUtilities,
+                                  UserRepository userRepository,
+                                  PostImageRepository postImageRepository,
+                                  PostRepository postRepository,
+                                  FriendshipRepository friendshipRepository,
+                                  SubscriptionRepository subscriptionRepository,
+                                  MessageRepository messageRepository,
+                                  ModelMapper modelMapper) {
         this.serviceUtilities = serviceUtilities;
         this.userRepository = userRepository;
         this.postImageRepository = postImageRepository;
-        this.userActivityRepository = userActivityRepository;
         this.postRepository = postRepository;
         this.friendshipRepository = friendshipRepository;
         this.subscriptionRepository = subscriptionRepository;
+        this.messageRepository = messageRepository;
         this.modelMapper = modelMapper;
     }
 
@@ -53,8 +57,8 @@ public class SocialMediaServiceImpl implements SocialMediaService {
     }
 
     @Override
-    public void createPost(CreatePostDTO createPostDTO, List<MultipartFile> files) {
-        User user = userRepository.findById(1L).orElseThrow();
+    public void createPost(Long creatorId, CreatePostDTO createPostDTO, List<MultipartFile> files) {
+        User user = userRepository.findById(creatorId).orElseThrow();
         Post post = modelMapper.map(createPostDTO, Post.class);
         post.setUser(user);
         post.setCreatedAt(LocalDateTime.now());
@@ -69,9 +73,9 @@ public class SocialMediaServiceImpl implements SocialMediaService {
     @Override
     public Page<PostDTO> getPostByUserId(Long userId, int page) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User with ID " + userId + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь с ID " + userId + " не найден"));
 
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, PageSize.PAGE_SIZE.getSize(), Sort.by("createdAt").descending());
 
         Page<Post> postsPage = postRepository.findByUser(user, pageable);
 
@@ -192,8 +196,54 @@ public class SocialMediaServiceImpl implements SocialMediaService {
     }
 
     @Override
-    public void sendMessage(Long recipientId, MessageDTO messageDTO) {
+    public MessageDTO sendMessage(Long senderId, Long receiverId, String content) {
 
+        List<User> users = serviceUtilities.checkUsersForMessaging(senderId, receiverId, userRepository);
+
+        Message message = new Message();
+        message.setSender(users.get(0));
+        message.setReceiver(users.get(1));
+        message.setContent(content);
+        message.setSentAt(LocalDateTime.now());
+
+        messageRepository.save(message);
+
+        return modelMapper.map(message, MessageDTO.class);
+    }
+
+    @Override
+    public List<MessageDTO> getChat(Long user1Id, Long user2Id) {
+
+        List<User> users = serviceUtilities.checkUsersForMessaging(user1Id, user2Id, userRepository);
+
+        List<Message> chatMessages = messageRepository.findBySenderAndReceiverOrReceiverAndSenderOrderBySentAtDesc(users.get(0), users.get(1), users.get(0), users.get(1));
+
+        return chatMessages.stream()
+                .map(message -> modelMapper.map(message, MessageDTO.class))
+                .toList();
+    }
+
+    @Override
+    public Page<PostDTO> getUserActivityFeed(Long userId, int page) {
+        Pageable pageable = PageRequest.of(page, PageSize.PAGE_SIZE.getSize(), Sort.by("createdAt").descending());
+
+        List<Subscription> subscriptions = subscriptionRepository.findBySubscriberId(userId);
+
+        List<Long> targetUserIds = subscriptions.stream()
+                .map(Subscription::getTargetUser)
+                .map(User::getId)
+                .toList();
+
+        List<Post> activityFeedPosts = postRepository.findByUserIdIn(targetUserIds);
+
+        List<PostDTO> postDTOList = activityFeedPosts.stream()
+                .map(serviceUtilities::mapToPostDTO)
+                .toList();
+
+        return new PageImpl<>(postDTOList, pageable, activityFeedPosts.size());
     }
 
 }
+
+
+

@@ -15,3 +15,7 @@ databaseChangeLog:
       file: liquibase/changesets/16082023_1_subscription.yml
   - include:
       file: liquibase/changesets/15082023_1_user_activity.yml
+  - include:
+      file: liquibase/changesets/17082023_message.yml
+  - include:
+      file: liquibase/changesets/17082023_user_activity.yml
