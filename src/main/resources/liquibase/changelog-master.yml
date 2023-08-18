@@ -19,3 +19,13 @@ databaseChangeLog:
       file: liquibase/changesets/17082023_message.yml
   - include:
       file: liquibase/changesets/17082023_user_activity.yml
+  - include:
+      file: liquibase/changesets/18082023_subscription.yml
+  - include:
+      file: liquibase/changesets/18082023_friendship.yaml
+  - include:
+      file: liquibase/changesets/18082023_1_subscription.yml
+  - include:
+      file: liquibase/changesets/18082023_2_subscription.yml
+  - include:
+      file: liquibase/changesets/18022023_3_subscription.yml

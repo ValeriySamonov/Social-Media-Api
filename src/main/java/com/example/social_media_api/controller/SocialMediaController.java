@@ -80,7 +80,7 @@ public class SocialMediaController {
     }
 
 
-    // Отклонение запроса на подписку (отклонение дружбы)
+    // Отклонение запроса на подписку/Удаление друга (отклонение дружбы/отписка)
     @PostMapping("/friendship/reject")
     public ResponseEntity<String> declineFriendshipRequest(
             @RequestBody ActionFriendship actionFriendship) {
@@ -93,7 +93,7 @@ public class SocialMediaController {
     public ResponseEntity<String> removeFriend(
             @RequestBody ActionFriendship actionFriendship) {
         socialMediaService.removeFriend(actionFriendship);
-        return ResponseEntity.ok("Вы больше не друзья");
+        return ResponseEntity.ok("Вы больше не друзья/подписка отменена");
     }
 
     //Лента активности

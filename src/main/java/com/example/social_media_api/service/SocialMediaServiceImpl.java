@@ -9,7 +9,8 @@ import com.example.social_media_api.dto.post.DeletePostDTO;
 import com.example.social_media_api.dto.post.PostDTO;
 import com.example.social_media_api.dto.post.UpdatePostDTO;
 import com.example.social_media_api.dto.user.CreateUserDTO;
-import com.example.social_media_api.enums.FriendshipStatus;
+import com.example.social_media_api.enums.FriendStatus;
+import com.example.social_media_api.enums.SubStatus;
 import com.example.social_media_api.exception.UserNotFoundException;
 import com.example.social_media_api.model.*;
 import com.example.social_media_api.repository.*;
@@ -24,6 +25,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +40,6 @@ public class SocialMediaServiceImpl implements SocialMediaService {
     private final UserRepository userRepository;
     private final PostImageRepository postImageRepository;
     private final PostRepository postRepository;
-    private final FriendshipRepository friendshipRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final MessageRepository messageRepository;
     private final ModelMapper modelMapper;
@@ -106,15 +108,20 @@ public class SocialMediaServiceImpl implements SocialMediaService {
 
     @Override
     public void deletePost(DeletePostDTO deletePostDTO) {
-        User user = userRepository.findById(deletePostDTO.getUserId()).orElseThrow();
-        Post post = postRepository.findByUserAndId(user, deletePostDTO.getPostId());
+        User user = userRepository.findById(deletePostDTO.getUserId()).orElseThrow(UserNotFoundException::new);
+        try {
+            Post post = postRepository.findByUserAndId(user, deletePostDTO.getPostId());
 
-        List<PostImage> removedImages = post.getImages();
-        for (PostImage removedImage : removedImages) {
-            serviceUtilities.deleteImageFromDirectory(removedImage.getFileName());
+            List<PostImage> removedImages = post.getImages();
+            for (PostImage removedImage : removedImages) {
+                serviceUtilities.deleteImageFromDirectory(removedImage.getFileName());
+            }
+
+            postRepository.delete(post);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
         }
 
-        postRepository.delete(post);
     }
 
     @Override
@@ -123,67 +130,72 @@ public class SocialMediaServiceImpl implements SocialMediaService {
         User targetUser = userRepository.findById(friendshipRequestDTO.getTargetUserId()).orElseThrow(UserNotFoundException::new);
 
         if (subscriber.getId().equals(targetUser.getId())) {
-            throw new IllegalArgumentException("Вы не можете подписаться на себя");
+            throw new IllegalArgumentException();
         }
 
         Subscription subscription = new Subscription();
-        Friendship friendship = new Friendship();
 
         subscription.setSubscriber(subscriber);
         subscription.setTargetUser(targetUser);
         subscription.setCreatedAt(LocalDateTime.now());
-
-        friendship.setUser(subscriber);
-        friendship.setFriend(targetUser);
-        friendship.setStatus(FriendshipStatus.PENDING); // Устанавливаем статус "pending"
-        friendship.setCreatedAt(LocalDateTime.now());
+        subscription.setFriendStatus(FriendStatus.UNACCEPTED);
+        subscription.setSubStatus(SubStatus.USER1);
 
         subscriptionRepository.save(subscription);
-        friendshipRepository.save(friendship);
+
     }
 
     @Override
     public void acceptFriendshipRequest(ActionFriendship actionFriendship) {
-        User user = userRepository.findById(actionFriendship.getUserId()).orElseThrow(UserNotFoundException::new); // Получите текущего пользователя (подписчика)
-        Friendship friendship = friendshipRepository.findByUserIdAndFriendId(actionFriendship.getTargetUserId(), user.getId());
-        if (friendship == null) {
-            throw new NullPointerException("У вас нет ожидающих подтверждения запросов на дружбу");
+
+        Subscription subscription = subscriptionRepository.findBySubscriberIdAndTargetUserIdAndFriendStatus(
+                actionFriendship.getTargetUserId(), actionFriendship.getUserId(), FriendStatus.UNACCEPTED);
+
+        if (subscription == null) {
+            throw new NullPointerException();
         }
-        friendship.setStatus(FriendshipStatus.ACCEPTED);
-        friendship.setCreatedAt(LocalDateTime.now());
 
-        User subscriber = userRepository.findById(actionFriendship.getTargetUserId()).orElseThrow(UserNotFoundException::new);
-
-        Subscription subscription = new Subscription();
-        subscription.setSubscriber(user);
-        subscription.setTargetUser(subscriber);
         subscription.setCreatedAt(LocalDateTime.now());
+        subscription.setFriendStatus(FriendStatus.ACCEPTED);
+        subscription.setSubStatus(SubStatus.BOTH);
 
         subscriptionRepository.save(subscription);
-        friendshipRepository.save(friendship);
     }
+
 
     @Override
     public void declineFriendshipRequest(ActionFriendship actionFriendship) {
-        User user = userRepository.findById(actionFriendship.getUserId()).orElseThrow(UserNotFoundException::new); // Получите текущего пользователя (подписчика)
-        Friendship friendship = friendshipRepository.findByUserIdAndFriendId(actionFriendship.getTargetUserId(), user.getId());
-        if (friendship == null) {
-            throw new NullPointerException("У вас нет ожидающих непринятия запросов на дружбу");
+
+        Subscription subscription = subscriptionRepository.findBySubscriberIdAndTargetUserIdAndFriendStatus(
+                actionFriendship.getTargetUserId(), actionFriendship.getUserId(), FriendStatus.UNACCEPTED);
+
+        if (subscription == null) {
+            throw new NullPointerException();
         }
-        friendshipRepository.delete(friendship);
+
     }
 
     @Override
     public void removeFriend(ActionFriendship actionFriendship) {
-        User user = userRepository.findById(actionFriendship.getUserId()).orElseThrow(UserNotFoundException::new); // Получите текущего пользователя (подписчика)
-        Friendship friendship = friendshipRepository.findByUserIdAndFriendId(actionFriendship.getTargetUserId(), user.getId());
-        if (friendship == null) {
-            throw new NullPointerException("У вас нет ожидающих непринятия запросов на дружбу");
-        } else if (friendship.getStatus() != FriendshipStatus.ACCEPTED) {
-            throw new IllegalArgumentException("У вас нет такого друга");
+
+        Subscription subscription = subscriptionRepository.findSubscriptionsWithFriendStatus(
+                actionFriendship.getUserId(), actionFriendship.getTargetUserId(), FriendStatus.ACCEPTED);
+
+        if (subscription == null) {
+            throw new NullPointerException();
         }
-        subscriptionRepository.delete(subscriptionRepository.findBySubscriberIdAndTargetUserId(actionFriendship.getUserId(), actionFriendship.getTargetUserId()));
-        friendshipRepository.delete(friendship);
+
+        subscription.setCreatedAt(LocalDateTime.now());
+        subscription.setFriendStatus(FriendStatus.UNACCEPTED);
+
+        if (Objects.equals(subscription.getSubscriber().getId(), actionFriendship.getUserId())) {
+            subscription.setSubStatus(SubStatus.USER2);
+        } else {
+            subscription.setSubStatus(SubStatus.USER1);
+        }
+
+        subscriptionRepository.save(subscription);
+
     }
 
     @Override
@@ -218,18 +230,19 @@ public class SocialMediaServiceImpl implements SocialMediaService {
     public Page<PostDTO> getUserActivityFeed(Long userId, int page) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("createdAt").descending());
 
-        List<Subscription> subscriptions = subscriptionRepository.findBySubscriberId(userId);
+        List<Subscription> subscriptions = subscriptionRepository.findSubscriptionsBySubscriberIdAndSubscriptionStatusIn(userId, SubStatus.USER1, SubStatus.BOTH);
 
         List<Long> targetUserIds = subscriptions.stream()
                 .map(Subscription::getTargetUser)
                 .map(User::getId)
-                .toList();
+                .collect(Collectors.toList());
 
         List<Post> activityFeedPosts = postRepository.findByUserIdIn(targetUserIds);
 
+
         List<PostDTO> postDTOList = activityFeedPosts.stream()
                 .map(mapEntityToDTO::mapToPostDTO)
-                .toList();
+                .collect(Collectors.toList());
 
         return new PageImpl<>(postDTOList, pageable, activityFeedPosts.size());
     }

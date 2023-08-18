@@ -16,4 +16,18 @@ public class SocialMediaExceptionHandlers {
                 .body("Пользователь не существует: " + ex.getMessage());
     }
 
+    @ExceptionHandler()
+    public ResponseEntity<String> handleNullPointerException(NullPointerException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body("Подписка/друг не существует: " + ex.getMessage());
+    }
+
+    @ExceptionHandler()
+    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body("Вы не можете подписаться на себя: " + ex.getMessage());
+    }
+
 }
