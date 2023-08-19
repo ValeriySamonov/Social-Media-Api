@@ -1,4 +1,4 @@
-package com.example.social_media_api.utilities;
+package com.example.social_media_api.utilities.mapper;
 
 import com.example.social_media_api.dto.post.PostDTO;
 import com.example.social_media_api.model.Post;

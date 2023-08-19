@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface MessageRepository extends JpaRepository<Message, Long> {
     List<Message> findBySenderAndReceiverOrReceiverAndSenderOrderBySentAtDesc(User sender, User receiver, User sender2, User receiver2);
+
+    List<Message> findBySenderIdAndReceiverId(long SenderId, long ReceiverId);
 }

@@ -1,0 +1,516 @@
+openapi: 3.0.1
+info:
+  title: Social Media API
+  description: >-
+    API для социальной медиа платформы, позволяющей пользователям
+    регистрироваться, входить в систему, создавать посты, переписываться,
+    подписываться на других пользователей и получать свою ленту активности.
+  version: '1.0'
+servers:
+  - url: http://localhost:8080
+    description: Generated server url
+tags:
+  - name: Message
+    description: Отправка сообщений друзьям
+  - name: User
+    description: Регистрация пользователя
+  - name: Social Media
+    description: Основные операции API
+paths:
+  /api/posts/{postId}:
+    put:
+      tags:
+        - Social Media
+      summary: Редактировать свой пост
+      description: Пользователи могут обновлять свои собственные посты.
+      operationId: updatePost
+      parameters:
+        - name: postId
+          in: path
+          description: ID поста для редактирования
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                updatePostDTO:
+                  $ref: '#/components/schemas/UpdatePostDTO'
+                addedFiles:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        '200':
+          description: Пост успешно обновлён
+          content:
+            '*/*':
+              schema:
+                type: string
+        '400':
+          description: Пользователь/пост не существует
+          content:
+            '*/*':
+              schema:
+                type: string
+  /users:
+    post:
+      tags:
+        - User
+      summary: Создание нового пользователя
+      description: >-
+        Пользователи могут зарегистрироваться, указав имя пользователя,
+        электронную почту и пароль.
+      operationId: createUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserDTO'
+        required: true
+      responses:
+        '200':
+          description: Пользователь успешно создан
+          content:
+            '*/*':
+              schema:
+                type: string
+        '400':
+          description: Пользователь с таким именем уже существует
+          content:
+            '*/*':
+              schema:
+                type: string
+        '409':
+          description: Данные вводятся в неверном формате
+          content:
+            '*/*':
+              schema:
+                type: string
+  /api/posts:
+    post:
+      tags:
+        - Social Media
+      summary: Создать пост
+      description: >-
+        Пользователи могут создавать новые посты, указывая текст, заголовок и
+        прикрепляя изображения.
+      operationId: createPost
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                createPostDTO:
+                  $ref: '#/components/schemas/CreatePostDTO'
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        '200':
+          description: Пост успешно опубликован
+          content:
+            '*/*':
+              schema:
+                type: string
+    delete:
+      tags:
+        - Social Media
+      summary: Удалить свой пост
+      description: Пользователи могут удалять свои собственные посты.
+      operationId: deletePost
+      parameters:
+        - name: userId
+          in: query
+          description: ID пользователя
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: postId
+          in: query
+          description: ID поста для удаления
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Пост успешно удалён
+          content:
+            '*/*':
+              schema:
+                type: string
+        '400':
+          description: Пост не существует
+          content:
+            '*/*':
+              schema:
+                type: string
+  /api/messages:
+    post:
+      tags:
+        - Message
+      summary: Отправить сообщение
+      description: 'Друзья могут писать друг другу сообщения '
+      operationId: sendMessage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageDTO'
+        required: true
+      responses:
+        '200':
+          description: Сообщение успешно отправлено
+          content:
+            '*/*':
+              schema:
+                type: string
+        '400':
+          description: Вы не можете подписаться на себя/писать себе
+          content:
+            '*/*':
+              schema:
+                type: string
+        '409':
+          description: Пользователь не являются вашим другом
+          content:
+            '*/*':
+              schema:
+                type: string
+  /api/friendship/unfriend:
+    post:
+      tags:
+        - Social Media
+      summary: Отказ от дружбы (подписки)
+      description: >-
+        Если один из друзей удаляет другого из друзей, то он также отписывается.
+        Второй пользователь при этом остаётся подписчиком первого.
+      operationId: removeFriend
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FriendshipDTO'
+        required: true
+      responses:
+        '200':
+          description: Вы больше не друзья/подписка отменена
+          content:
+            '*/*':
+              schema:
+                type: string
+        '400':
+          description: Пользователь не существует
+          content:
+            '*/*':
+              schema:
+                type: string
+  /api/friendship/request:
+    post:
+      tags:
+        - Social Media
+      summary: Отправить запрос на дружбу (подписку)
+      description: >-
+        Пользователи могут отправлять заявки в друзья другим пользователям.
+        Пользователь, отправивший заявку, остается подписчиком до тех пор, пока
+        сам не откажется от подписки.
+      operationId: sendFriendshipRequest
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FriendshipDTO'
+        required: true
+      responses:
+        '200':
+          description: Запрос на дружбу отправлен
+          content:
+            '*/*':
+              schema:
+                type: string
+        '400':
+          description: Пользователь не существует
+          content:
+            '*/*':
+              schema:
+                type: string
+  /api/friendship/reject:
+    post:
+      tags:
+        - Social Media
+      summary: Несогласие на дружбу (отклонение запроса)
+      description: >-
+        Если пользователь, получивший заявку, отклоняет её, то пользователь,
+        отправивший заявку, все равно остается подписчиком.
+      operationId: declineFriendshipRequest
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FriendshipDTO'
+        required: true
+      responses:
+        '200':
+          description: Запрос на дружбу отклонен
+          content:
+            '*/*':
+              schema:
+                type: string
+        '400':
+          description: Пользователь не существует
+          content:
+            '*/*':
+              schema:
+                type: string
+  /api/friendship/accept:
+    post:
+      tags:
+        - Social Media
+      summary: Согласие на дружбу (принятие запроса)
+      description: >-
+        Если пользователь, получивший заявку, принимает ее, оба пользователя
+        становятся друзьями.
+      operationId: acceptFriendshipRequest
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FriendshipDTO'
+        required: true
+      responses:
+        '200':
+          description: Запрос на дружбу принят
+          content:
+            '*/*':
+              schema:
+                type: string
+        '400':
+          description: Пользователь не существует
+          content:
+            '*/*':
+              schema:
+                type: string
+  /api/posts/{userId}:
+    get:
+      tags:
+        - Social Media
+      summary: Получить пост пользователя
+      description: Пользователи могут просматривать посты других пользователей.
+      operationId: getPostByUserId
+      parameters:
+        - name: userId
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: page
+          in: query
+          description: Номер страницы
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 0
+      responses:
+        '200':
+          description: Запрос успешно выполнен
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/PagePostDTO'
+        '400':
+          description: Пользователь не существует
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/PagePostDTO'
+  /api/activity-feed/{userId}:
+    get:
+      tags:
+        - Social Media
+      summary: Лента активности пользователя
+      description: >-
+        Лента активности пользователя отображает последние посты от
+        пользователей, на которых он подписан.
+      operationId: getUserActivityFeed
+      parameters:
+        - name: userId
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: page
+          in: query
+          description: Номер страницы
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 0
+      responses:
+        '200':
+          description: Запрос успешно выполнен
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/PagePostDTO'
+        '400':
+          description: Пользователь не существует
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/PagePostDTO'
+components:
+  schemas:
+    UpdatePostDTO:
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+        title:
+          type: string
+        text:
+          type: string
+        removedFileIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+    CreateUserDTO:
+      required:
+        - passwordHash
+        - username
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        passwordHash:
+          type: string
+    CreatePostDTO:
+      type: object
+      properties:
+        creatorId:
+          type: integer
+          format: int64
+        title:
+          type: string
+        text:
+          type: string
+    MessageDTO:
+      type: object
+      properties:
+        senderId:
+          type: integer
+          format: int64
+        receiverId:
+          type: integer
+          format: int64
+        content:
+          type: string
+    FriendshipDTO:
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+        targetUserId:
+          type: integer
+          format: int64
+    PagePostDTO:
+      type: object
+      properties:
+        totalPages:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        size:
+          type: integer
+          format: int32
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/PostDTO'
+        number:
+          type: integer
+          format: int32
+        sort:
+          $ref: '#/components/schemas/SortObject'
+        first:
+          type: boolean
+        last:
+          type: boolean
+        numberOfElements:
+          type: integer
+          format: int32
+        pageable:
+          $ref: '#/components/schemas/PageableObject'
+        empty:
+          type: boolean
+    PageableObject:
+      type: object
+      properties:
+        offset:
+          type: integer
+          format: int64
+        sort:
+          $ref: '#/components/schemas/SortObject'
+        pageNumber:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        paged:
+          type: boolean
+        unpaged:
+          type: boolean
+    PostDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        userId:
+          type: integer
+          format: int64
+        username:
+          type: string
+        title:
+          type: string
+        text:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        imageUrls:
+          type: array
+          items:
+            type: string
+    SortObject:
+      type: object
+      properties:
+        empty:
+          type: boolean
+        sorted:
+          type: boolean
+        unsorted:
+          type: boolean
