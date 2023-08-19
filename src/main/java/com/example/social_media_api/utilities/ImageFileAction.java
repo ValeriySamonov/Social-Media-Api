@@ -70,7 +70,7 @@ public class ImageFileAction {
         try {
             Files.deleteIfExists(imagePath);
         } catch (IOException e) {
-            // Обработка ошибки удаления файла
+
             e.printStackTrace();
         }
     }

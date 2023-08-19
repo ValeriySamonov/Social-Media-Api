@@ -1,10 +1,8 @@
 package com.example.social_media_api.service;
 
 import com.example.social_media_api.dto.friendship.FriendshipDTO;
-import com.example.social_media_api.dto.message.ChatDTO;
 import com.example.social_media_api.dto.message.MessageDTO;
 import com.example.social_media_api.dto.post.CreatePostDTO;
-import com.example.social_media_api.dto.post.DeletePostDTO;
 import com.example.social_media_api.dto.post.PostDTO;
 import com.example.social_media_api.dto.post.UpdatePostDTO;
 import com.example.social_media_api.dto.user.CreateUserDTO;
@@ -15,8 +13,8 @@ import com.example.social_media_api.exception.UserNotFoundException;
 import com.example.social_media_api.model.*;
 import com.example.social_media_api.repository.*;
 import com.example.social_media_api.utilities.CheckUp;
-import com.example.social_media_api.utilities.mapper.MapEntityToDTO;
 import com.example.social_media_api.utilities.ImageFileAction;
+import com.example.social_media_api.utilities.mapper.MapEntityToDTO;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.*;
@@ -118,16 +116,16 @@ public class SocialMediaServiceImpl implements SocialMediaService {
     }
 
     @Override
-    public void deletePost(DeletePostDTO deletePostDTO) {
-        User user = userRepository.findById(deletePostDTO.getUserId()).orElseThrow(UserNotFoundException::new);
+    public void deletePost(Long userId, Long postId) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         try {
-            Post post = postRepository.findByUserIdAndId(user.getId(), deletePostDTO.getPostId());
+            Post post = postRepository.findByUserIdAndId(user.getId(), postId);
 
             List<PostImage> removedImages = post.getImages();
             for (PostImage removedImage : removedImages) {
                 imageFileAction.deleteImageFromDirectory(removedImage.getFileName());
             }
-
+            postImageRepository.deleteAll(removedImages);
             postRepository.delete(post);
         } catch (NullPointerException e) {
             e.printStackTrace();
@@ -226,22 +224,10 @@ public class SocialMediaServiceImpl implements SocialMediaService {
     }
 
     @Override
-    public List<MessageDTO> getChat(ChatDTO chatDTO) {
-
-        List<User> users = checkUp.checkUsersForMessaging(chatDTO.getUser1Id(), chatDTO.getUser2Id());
-
-        List<Message> chatMessages = messageRepository.findBySenderAndReceiverOrReceiverAndSenderOrderBySentAtDesc(users.get(0), users.get(1), users.get(0), users.get(1));
-
-        return chatMessages.stream()
-                .map(message -> modelMapper.map(message, MessageDTO.class))
-                .toList();
-    }
-
-    @Override
     public Page<PostDTO> getUserActivityFeed(Long userId, int page) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("createdAt").descending());
 
-        List<Subscription> subscriptions = subscriptionRepository.findSubscriptionsBySubscriberIdAndSubscriptionStatusIn(userId, SubStatus.USER1, SubStatus.BOTH);
+        List<Subscription> subscriptions = subscriptionRepository.findBySubscriberIdAndSubscriptionStatusIn(userId, SubStatus.USER1, SubStatus.BOTH);
 
         List<Long> targetUserIds = subscriptions.stream()
                 .map(Subscription::getTargetUser)

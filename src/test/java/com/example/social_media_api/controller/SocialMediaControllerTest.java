@@ -4,7 +4,6 @@ import com.example.social_media_api.SocialMediaApiApplication;
 import com.example.social_media_api.container.BaseIntegrationContainer;
 import com.example.social_media_api.dto.friendship.FriendshipDTO;
 import com.example.social_media_api.dto.post.CreatePostDTO;
-import com.example.social_media_api.dto.post.DeletePostDTO;
 import com.example.social_media_api.dto.post.UpdatePostDTO;
 import com.example.social_media_api.enums.FriendStatus;
 import com.example.social_media_api.enums.SubStatus;
@@ -109,7 +108,7 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
                         .flashAttr("updatePostDTO", updatePostDTO))
                 .andExpect(status().isOk());
 
-        Optional<Post> savedPost = postRepository.findById(1L);
+        Optional<Post> savedPost = postRepository.findById(updatePostDTO.getUserId());
         assertTrue(savedPost.isPresent());
         assertEquals("Updated Title", savedPost.get().getTitle());
         assertEquals("Updated Text", savedPost.get().getText());
@@ -134,13 +133,13 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
     @SneakyThrows
     public void deletePostTest() {
 
-        DeletePostDTO deletePostDTO = new DeletePostDTO()
-                .setUserId(1L)
-                .setPostId(1L);
+        Long userId = 1L;
+        Long postId = 1L;
 
         mockMvc.perform(delete("/api/posts")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(deletePostDTO)))
+                        .param("userId", String.valueOf(userId))
+                        .param("postId", String.valueOf(postId))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
@@ -158,12 +157,12 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
                         .content(new ObjectMapper().writeValueAsString(friendshipDTO)))
                 .andExpect(status().isOk());
 
-        Optional<Subscription> savedRequest = subscriptionRepository.findByUserIdAndTargetUserIdAndFriendStatusAndSubsStatus(
-                1L, 3L, FriendStatus.UNACCEPTED, SubStatus.USER1);
+        Optional<Subscription> savedRequest = subscriptionRepository.findByParamWithAnd(
+                friendshipDTO.getUserId(), friendshipDTO.getTargetUserId(), FriendStatus.UNACCEPTED, SubStatus.USER1);
 
         assertTrue(savedRequest.isPresent());
-        assertEquals(1L, savedRequest.get().getSubscriber().getId());
-        assertEquals(3L, savedRequest.get().getTargetUser().getId());
+        assertEquals(friendshipDTO.getUserId(), savedRequest.get().getSubscriber().getId());
+        assertEquals(friendshipDTO.getTargetUserId(), savedRequest.get().getTargetUser().getId());
     }
 
     @DisplayName("Тест для метода принятия запроса на дружбу")
@@ -180,12 +179,12 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
                         .content(new ObjectMapper().writeValueAsString(friendshipDTO)))
                 .andExpect(status().isOk());
 
-        Optional<Subscription> acceptedRequest = subscriptionRepository.findByUserIdAndTargetUserIdAndFriendStatusAndSubsStatus(
-                2L, 1L, FriendStatus.ACCEPTED, SubStatus.BOTH);
+        Optional<Subscription> acceptedRequest = subscriptionRepository.findByParamWithAnd(
+                friendshipDTO.getTargetUserId(), friendshipDTO.getUserId(), FriendStatus.ACCEPTED, SubStatus.BOTH);
 
         assertTrue(acceptedRequest.isPresent());
-        assertEquals(2L, acceptedRequest.get().getSubscriber().getId());
-        assertEquals(1L, acceptedRequest.get().getTargetUser().getId());
+        assertEquals(friendshipDTO.getTargetUserId(), acceptedRequest.get().getSubscriber().getId());
+        assertEquals(friendshipDTO.getUserId(), acceptedRequest.get().getTargetUser().getId());
     }
 
     @DisplayName("Тест для метода отклонения запроса на дружбу")
@@ -201,12 +200,12 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
                         .content(new ObjectMapper().writeValueAsString(friendshipDTO)))
                 .andExpect(status().isOk());
 
-        Optional<Subscription> declineRequest = subscriptionRepository.findByUserIdAndTargetUserIdAndFriendStatusAndSubsStatus(
-                2L, 1L, FriendStatus.UNACCEPTED, SubStatus.USER2);
+        Optional<Subscription> declineRequest = subscriptionRepository.findByParamWithAnd(
+                friendshipDTO.getTargetUserId(), friendshipDTO.getUserId(), FriendStatus.UNACCEPTED, SubStatus.USER2);
 
         assertTrue(declineRequest.isPresent());
-        assertEquals(2L, declineRequest.get().getSubscriber().getId());
-        assertEquals(1L, declineRequest.get().getTargetUser().getId());
+        assertEquals(friendshipDTO.getTargetUserId(), declineRequest.get().getSubscriber().getId());
+        assertEquals(friendshipDTO.getUserId(), declineRequest.get().getTargetUser().getId());
     }
 
     @DisplayName("Тест для метода удаления друга (отписка)")
@@ -223,12 +222,12 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
                         .content(new ObjectMapper().writeValueAsString(friendshipDTO)))
                 .andExpect(status().isOk());
 
-        Optional<Subscription> declineRequest = subscriptionRepository.findByUserIdAndTargetUserIdAndFriendStatusAndSubsStatus(
-                1L, 3L, FriendStatus.UNACCEPTED, SubStatus.USER2);
+        Optional<Subscription> declineRequest = subscriptionRepository.findByParamWithAnd(
+                friendshipDTO.getUserId(), friendshipDTO.getTargetUserId(), FriendStatus.UNACCEPTED, SubStatus.USER2);
 
         assertTrue(declineRequest.isPresent());
-        assertEquals(1L, declineRequest.get().getSubscriber().getId());
-        assertEquals(3L, declineRequest.get().getTargetUser().getId());
+        assertEquals(friendshipDTO.getUserId(), declineRequest.get().getSubscriber().getId());
+        assertEquals(friendshipDTO.getTargetUserId(), declineRequest.get().getTargetUser().getId());
     }
 
     @DisplayName("Тест для метода просмотра ленты активности")

@@ -19,7 +19,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -53,8 +54,8 @@ public class UserControllerTest extends BaseIntegrationContainer {
 
         Optional<User> savedUser = userRepository.findByUsername("user1");
         assertTrue(savedUser.isPresent());
-        assertEquals("user1@example.com", savedUser.get().getEmail());
-        assertEquals("password1", savedUser.get().getPasswordHash());
+        assertEquals(createUserDTO.getEmail(), savedUser.get().getEmail());
+        assertEquals(createUserDTO.getPasswordHash(), savedUser.get().getPasswordHash());
 
     }
 
@@ -72,6 +73,6 @@ public class UserControllerTest extends BaseIntegrationContainer {
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonCreateUser.toString()))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isConflict());
     }
 }
