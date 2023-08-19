@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: addSubscriptionStatusToSubscription
+      author: VVS
+      changes:
+        - addColumn:
+            tableName: subscriptions
+            columns:
+              - column:
+                  name: subs_status
+                  type: SMALLINT

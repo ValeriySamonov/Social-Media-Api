@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: removeFriendStatusFromSubscription
+      author: your_name
+      changes:
+        - dropColumn:
+            tableName: subscriptions
+            columnName: friend_status

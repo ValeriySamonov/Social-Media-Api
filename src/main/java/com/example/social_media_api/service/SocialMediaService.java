@@ -1,7 +1,11 @@
 package com.example.social_media_api.service;
 
+import com.example.social_media_api.dto.friendship.ActionFriendship;
+import com.example.social_media_api.dto.friendship.FriendshipRequestDTO;
+import com.example.social_media_api.dto.message.ChatDTO;
 import com.example.social_media_api.dto.message.MessageDTO;
 import com.example.social_media_api.dto.post.CreatePostDTO;
+import com.example.social_media_api.dto.post.DeletePostDTO;
 import com.example.social_media_api.dto.post.PostDTO;
 import com.example.social_media_api.dto.post.UpdatePostDTO;
 import com.example.social_media_api.dto.user.CreateUserDTO;
@@ -13,16 +17,16 @@ import java.util.List;
 
 public interface SocialMediaService {
     void createUser(CreateUserDTO createUserDTO);
-    void createPost(Long creatorId, CreatePostDTO createPostDTO, List<MultipartFile> files);
+    void createPost(CreatePostDTO createPostDTO, List<MultipartFile> files);
     Page<PostDTO> getPostByUserId(Long userId, int page);
-    void sendFriendshipRequest(Long targetUserId);
-    void acceptFriendshipRequest(Long subscriberId);
-    void declineFriendshipRequest(Long subscriberId);
-    void removeFriend(Long friendId);
+    void sendFriendshipRequest(FriendshipRequestDTO friendshipRequestDTO);
+    void acceptFriendshipRequest(ActionFriendship actionFriendship);
+    void declineFriendshipRequest(ActionFriendship actionFriendship);
+    void removeFriend(ActionFriendship actionFriendship);
     void updatePost(Long postId, UpdatePostDTO updatePostDTO, List<MultipartFile> addedFiles) throws IOException;
-    void deletePost(Long postId);
-    MessageDTO sendMessage(Long senderId, Long receiverId, String content);
-    List<MessageDTO> getChat(Long user1Id, Long user2Id);
+    void deletePost(DeletePostDTO deletePostDTO);
+    void sendMessage(MessageDTO messageDTO);
+    List<MessageDTO> getChat(ChatDTO chatDTO);
     Page<PostDTO> getUserActivityFeed(Long userId, int page);
 
 }

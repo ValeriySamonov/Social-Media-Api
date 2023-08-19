@@ -1,9 +1,13 @@
 package com.example.social_media_api.controller;
 
+import com.example.social_media_api.dto.friendship.ActionFriendship;
+import com.example.social_media_api.dto.friendship.FriendshipRequestDTO;
 import com.example.social_media_api.dto.post.CreatePostDTO;
+import com.example.social_media_api.dto.post.DeletePostDTO;
 import com.example.social_media_api.dto.post.PostDTO;
 import com.example.social_media_api.dto.post.UpdatePostDTO;
 import com.example.social_media_api.service.SocialMediaService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,21 +18,17 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class SocialMediaController {
 
     private final SocialMediaService socialMediaService;
 
-    public SocialMediaController(SocialMediaService socialMediaService) {
-        this.socialMediaService = socialMediaService;
-    }
-
     // Создание поста
-    @PostMapping(value = "/posts/{creatorId}", consumes = "multipart/form-data")
+    @PostMapping(value = "/posts", consumes = "multipart/form-data")
     public ResponseEntity<String> createPost(
-            @PathVariable Long creatorId,
             @ModelAttribute CreatePostDTO createPostDTO,
             @RequestParam(name = "files", required = false) List<MultipartFile> files) {
-        socialMediaService.createPost(creatorId, createPostDTO, files);
+        socialMediaService.createPost(createPostDTO, files);
         return ResponseEntity.ok("Пост успешно опубликован");
     }
 
@@ -55,44 +55,45 @@ public class SocialMediaController {
     }
 
     // Удаление поста
-    @DeleteMapping("/posts/{postId}")
-    public ResponseEntity<String> deletePost(@PathVariable Long postId) {
-        socialMediaService.deletePost(postId);
+    @DeleteMapping("/posts")
+    public ResponseEntity<String> deletePost(
+            @RequestBody DeletePostDTO deletePostDTO) {
+        socialMediaService.deletePost(deletePostDTO);
         return ResponseEntity.ok("Пост успешно удалён");
     }
 
     // Отправка запроса на подписку (добавление в друзья)
-    @PostMapping("/friendship/{targetUserId}")
+    @PostMapping("/friendship/request")
     public ResponseEntity<String> sendFriendshipRequest(
-            @PathVariable Long targetUserId) {
-        socialMediaService.sendFriendshipRequest(targetUserId);
+            @RequestBody FriendshipRequestDTO friendshipRequestDTO) {
+        socialMediaService.sendFriendshipRequest(friendshipRequestDTO);
         return ResponseEntity.ok("Запрос на дружбу отправлен");
     }
 
 
     // Принятие запроса на подписку (подтверждение дружбы)
-    @PostMapping("/friendship/accept/{subscriberId}")
+    @PostMapping("/friendship/accept")
     public ResponseEntity<String> acceptFriendshipRequest(
-            @PathVariable Long subscriberId) {
-        socialMediaService.acceptFriendshipRequest(subscriberId);
+            @RequestBody ActionFriendship actionFriendship) {
+        socialMediaService.acceptFriendshipRequest(actionFriendship);
         return ResponseEntity.ok("Запрос на дружбу принят");
     }
 
 
-    // Отклонение запроса на подписку (отклонение дружбы)
-    @PostMapping("/friendship/reject/{subscriberId}")
+    // Отклонение запроса на подписку/Удаление друга (отклонение дружбы/отписка)
+    @PostMapping("/friendship/reject")
     public ResponseEntity<String> declineFriendshipRequest(
-            @PathVariable Long subscriberId) {
-        socialMediaService.declineFriendshipRequest(subscriberId);
+            @RequestBody ActionFriendship actionFriendship) {
+        socialMediaService.declineFriendshipRequest(actionFriendship);
         return ResponseEntity.ok("Запрос на дружбу отклонен");
     }
 
     // Удаление друга (отписка)
-    @DeleteMapping("/friendship/{friendId}")
+    @DeleteMapping("/friendship")
     public ResponseEntity<String> removeFriend(
-            @PathVariable Long friendId) {
-        socialMediaService.removeFriend(friendId);
-        return ResponseEntity.ok("Вы больше не друзья");
+            @RequestBody ActionFriendship actionFriendship) {
+        socialMediaService.removeFriend(actionFriendship);
+        return ResponseEntity.ok("Вы больше не друзья/подписка отменена");
     }
 
     //Лента активности

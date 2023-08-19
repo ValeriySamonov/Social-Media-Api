@@ -2,6 +2,7 @@ package com.example.social_media_api.controller;
 
 import com.example.social_media_api.dto.user.CreateUserDTO;
 import com.example.social_media_api.service.SocialMediaService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,13 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
 
     private final SocialMediaService socialMediaService;
-
-    public UserController(SocialMediaService socialMediaService) {
-        this.socialMediaService = socialMediaService;
-    }
 
     // Создание пользователя
     @PostMapping()
