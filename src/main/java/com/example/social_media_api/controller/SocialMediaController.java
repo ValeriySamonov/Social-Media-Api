@@ -1,7 +1,6 @@
 package com.example.social_media_api.controller;
 
-import com.example.social_media_api.dto.friendship.ActionFriendship;
-import com.example.social_media_api.dto.friendship.FriendshipRequestDTO;
+import com.example.social_media_api.dto.friendship.FriendshipDTO;
 import com.example.social_media_api.dto.post.CreatePostDTO;
 import com.example.social_media_api.dto.post.DeletePostDTO;
 import com.example.social_media_api.dto.post.PostDTO;
@@ -26,7 +25,7 @@ public class SocialMediaController {
     // Создание поста
     @PostMapping(value = "/posts", consumes = "multipart/form-data")
     public ResponseEntity<String> createPost(
-            @ModelAttribute CreatePostDTO createPostDTO,
+            @ModelAttribute("createPostDTO") CreatePostDTO createPostDTO,
             @RequestParam(name = "files", required = false) List<MultipartFile> files) {
         socialMediaService.createPost(createPostDTO, files);
         return ResponseEntity.ok("Пост успешно опубликован");
@@ -65,8 +64,8 @@ public class SocialMediaController {
     // Отправка запроса на подписку (добавление в друзья)
     @PostMapping("/friendship/request")
     public ResponseEntity<String> sendFriendshipRequest(
-            @RequestBody FriendshipRequestDTO friendshipRequestDTO) {
-        socialMediaService.sendFriendshipRequest(friendshipRequestDTO);
+            @RequestBody FriendshipDTO friendshipDTO) {
+        socialMediaService.sendFriendshipRequest(friendshipDTO);
         return ResponseEntity.ok("Запрос на дружбу отправлен");
     }
 
@@ -74,8 +73,8 @@ public class SocialMediaController {
     // Принятие запроса на подписку (подтверждение дружбы)
     @PostMapping("/friendship/accept")
     public ResponseEntity<String> acceptFriendshipRequest(
-            @RequestBody ActionFriendship actionFriendship) {
-        socialMediaService.acceptFriendshipRequest(actionFriendship);
+            @RequestBody FriendshipDTO friendshipDTO) {
+        socialMediaService.acceptFriendshipRequest(friendshipDTO);
         return ResponseEntity.ok("Запрос на дружбу принят");
     }
 
@@ -83,16 +82,16 @@ public class SocialMediaController {
     // Отклонение запроса на подписку/Удаление друга (отклонение дружбы/отписка)
     @PostMapping("/friendship/reject")
     public ResponseEntity<String> declineFriendshipRequest(
-            @RequestBody ActionFriendship actionFriendship) {
-        socialMediaService.declineFriendshipRequest(actionFriendship);
+            @RequestBody FriendshipDTO friendshipDTO) {
+        socialMediaService.declineFriendshipRequest(friendshipDTO);
         return ResponseEntity.ok("Запрос на дружбу отклонен");
     }
 
     // Удаление друга (отписка)
-    @DeleteMapping("/friendship")
+    @PostMapping("/friendship/unfriend")
     public ResponseEntity<String> removeFriend(
-            @RequestBody ActionFriendship actionFriendship) {
-        socialMediaService.removeFriend(actionFriendship);
+            @RequestBody FriendshipDTO friendshipDTO) {
+        socialMediaService.removeFriend(friendshipDTO);
         return ResponseEntity.ok("Вы больше не друзья/подписка отменена");
     }
 

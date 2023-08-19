@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -32,13 +33,13 @@ public class ServiceUtilities {
     private final PostImageRepository postImageRepository;
 
     public void saveFiles(List<MultipartFile> files, Post post) {
-
         List<PostImage> postImageList = files.stream()
                 .map(this::createImage)
                 .map(fileName -> new PostImage().setFileName(fileName))
                 .map(postImage -> postImage.setPost(post))
-                .map(postImageRepository::save)
-                .toList();
+                .collect(Collectors.toList()); // Собираем в список
+
+        postImageRepository.saveAll(postImageList); // Пакетное сохранение всех объектов
 
         post.setImages(postImageList);
         postRepository.save(post);

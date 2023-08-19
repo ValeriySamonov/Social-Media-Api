@@ -1,9 +1,11 @@
 package com.example.social_media_api.dto.friendship;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 @Data
-public class ActionFriendship {
+@Accessors(chain = true)
+public class FriendshipDTO {
     private Long userId;
     private Long targetUserId;
 }

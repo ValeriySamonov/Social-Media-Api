@@ -1,7 +1,6 @@
 package com.example.social_media_api.service;
 
-import com.example.social_media_api.dto.friendship.ActionFriendship;
-import com.example.social_media_api.dto.friendship.FriendshipRequestDTO;
+import com.example.social_media_api.dto.friendship.FriendshipDTO;
 import com.example.social_media_api.dto.message.ChatDTO;
 import com.example.social_media_api.dto.message.MessageDTO;
 import com.example.social_media_api.dto.post.CreatePostDTO;
@@ -11,6 +10,7 @@ import com.example.social_media_api.dto.post.UpdatePostDTO;
 import com.example.social_media_api.dto.user.CreateUserDTO;
 import com.example.social_media_api.enums.FriendStatus;
 import com.example.social_media_api.enums.SubStatus;
+import com.example.social_media_api.exception.UserAlreadyExistsException;
 import com.example.social_media_api.exception.UserNotFoundException;
 import com.example.social_media_api.model.*;
 import com.example.social_media_api.repository.*;
@@ -46,22 +46,31 @@ public class SocialMediaServiceImpl implements SocialMediaService {
 
     @Override
     public void createUser(CreateUserDTO createUserDTO) {
+        String username = createUserDTO.getUsername();
+
+        // Проверка наличия пользователя с таким именем
+        if (userRepository.findByUsername(username).isPresent()) {
+            throw new UserAlreadyExistsException();
+        }
+
         User user = modelMapper.map(createUserDTO, User.class);
         userRepository.save(user);
     }
 
+
     @Override
     public void createPost(CreatePostDTO createPostDTO, List<MultipartFile> files) {
         User user = userRepository.findById(createPostDTO.getCreatorId()).orElseThrow(UserNotFoundException::new);
-        Post post = modelMapper.map(createPostDTO, Post.class);
+        Post post = new Post();
+        post.setText(createPostDTO.getText());
+        post.setTitle(createPostDTO.getTitle());
         post.setUser(user);
         post.setCreatedAt(LocalDateTime.now());
+        postRepository.save(post);
 
         if (!CollectionUtils.isEmpty(files)) {
             serviceUtilities.saveFiles(files, post);
         }
-
-        postRepository.save(post);
 
     }
 
@@ -80,12 +89,12 @@ public class SocialMediaServiceImpl implements SocialMediaService {
     @Override
     public void updatePost(Long postId, UpdatePostDTO updatePostDTO, List<MultipartFile> addedFiles) {
         User user = userRepository.findById(updatePostDTO.getUserId()).orElseThrow(UserNotFoundException::new);
-        Post post = postRepository.findByUserAndId(user, postId);
+        Post post = postRepository.findByUserIdAndId(user.getId(), postId);
 
         post.setTitle(updatePostDTO.getTitle());
         post.setText(updatePostDTO.getText());
 
-        if (addedFiles != null && !addedFiles.isEmpty()) {
+        if (!CollectionUtils.isEmpty(addedFiles)) {
 
             serviceUtilities.saveFiles(addedFiles, post);
         }
@@ -110,7 +119,7 @@ public class SocialMediaServiceImpl implements SocialMediaService {
     public void deletePost(DeletePostDTO deletePostDTO) {
         User user = userRepository.findById(deletePostDTO.getUserId()).orElseThrow(UserNotFoundException::new);
         try {
-            Post post = postRepository.findByUserAndId(user, deletePostDTO.getPostId());
+            Post post = postRepository.findByUserIdAndId(user.getId(), deletePostDTO.getPostId());
 
             List<PostImage> removedImages = post.getImages();
             for (PostImage removedImage : removedImages) {
@@ -125,9 +134,9 @@ public class SocialMediaServiceImpl implements SocialMediaService {
     }
 
     @Override
-    public void sendFriendshipRequest(FriendshipRequestDTO friendshipRequestDTO) {
-        User subscriber = userRepository.findById(friendshipRequestDTO.getUserId()).orElseThrow(UserNotFoundException::new); // Получите текущего пользователя (подписчика)
-        User targetUser = userRepository.findById(friendshipRequestDTO.getTargetUserId()).orElseThrow(UserNotFoundException::new);
+    public void sendFriendshipRequest(FriendshipDTO friendshipDTO) {
+        User subscriber = userRepository.findById(friendshipDTO.getUserId()).orElseThrow(UserNotFoundException::new); // Получите текущего пользователя (подписчика)
+        User targetUser = userRepository.findById(friendshipDTO.getTargetUserId()).orElseThrow(UserNotFoundException::new);
 
         if (subscriber.getId().equals(targetUser.getId())) {
             throw new IllegalArgumentException();
@@ -146,10 +155,10 @@ public class SocialMediaServiceImpl implements SocialMediaService {
     }
 
     @Override
-    public void acceptFriendshipRequest(ActionFriendship actionFriendship) {
+    public void acceptFriendshipRequest(FriendshipDTO friendshipDTO) {
 
         Subscription subscription = subscriptionRepository.findBySubscriberIdAndTargetUserIdAndFriendStatus(
-                actionFriendship.getTargetUserId(), actionFriendship.getUserId(), FriendStatus.UNACCEPTED);
+                friendshipDTO.getTargetUserId(), friendshipDTO.getUserId(), FriendStatus.UNACCEPTED);
 
         if (subscription == null) {
             throw new NullPointerException();
@@ -164,10 +173,10 @@ public class SocialMediaServiceImpl implements SocialMediaService {
 
 
     @Override
-    public void declineFriendshipRequest(ActionFriendship actionFriendship) {
+    public void declineFriendshipRequest(FriendshipDTO friendshipDTO) {
 
         Subscription subscription = subscriptionRepository.findBySubscriberIdAndTargetUserIdAndFriendStatus(
-                actionFriendship.getTargetUserId(), actionFriendship.getUserId(), FriendStatus.UNACCEPTED);
+                friendshipDTO.getTargetUserId(), friendshipDTO.getUserId(), FriendStatus.UNACCEPTED);
 
         if (subscription == null) {
             throw new NullPointerException();
@@ -176,10 +185,10 @@ public class SocialMediaServiceImpl implements SocialMediaService {
     }
 
     @Override
-    public void removeFriend(ActionFriendship actionFriendship) {
+    public void removeFriend(FriendshipDTO friendshipDTO) {
 
         Subscription subscription = subscriptionRepository.findSubscriptionsWithFriendStatus(
-                actionFriendship.getUserId(), actionFriendship.getTargetUserId(), FriendStatus.ACCEPTED);
+                friendshipDTO.getUserId(), friendshipDTO.getTargetUserId(), FriendStatus.ACCEPTED);
 
         if (subscription == null) {
             throw new NullPointerException();
@@ -188,7 +197,7 @@ public class SocialMediaServiceImpl implements SocialMediaService {
         subscription.setCreatedAt(LocalDateTime.now());
         subscription.setFriendStatus(FriendStatus.UNACCEPTED);
 
-        if (Objects.equals(subscription.getSubscriber().getId(), actionFriendship.getUserId())) {
+        if (Objects.equals(subscription.getSubscriber().getId(), friendshipDTO.getUserId())) {
             subscription.setSubStatus(SubStatus.USER2);
         } else {
             subscription.setSubStatus(SubStatus.USER1);
