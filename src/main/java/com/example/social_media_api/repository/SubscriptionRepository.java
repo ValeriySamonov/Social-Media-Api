@@ -36,5 +36,4 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
             "WHERE (s.subscriber.id = :subscriberId AND s.targetUser.id = :targetUserId AND s.friendStatus = :friendStatus AND s.subStatus = :subStatus)")
     Optional<Subscription> findByParamWithAnd(long subscriberId, long targetUserId, FriendStatus friendStatus, SubStatus subStatus);
 
-    boolean existsBySubscriberIdAndTargetUserIdAndSubStatusIn(Long userId1, Long userId2, List<SubStatus> both);
 }
