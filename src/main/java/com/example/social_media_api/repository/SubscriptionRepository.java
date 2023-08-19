@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface SubscriptionRepository extends JpaRepository<Subscription, Long> {
     Subscription findBySubscriberIdAndTargetUserIdAndFriendStatus(Long subscriberId, Long targetUserId, FriendStatus friendStatus);
@@ -26,4 +27,7 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
                                                                               @Param("status1") SubStatus status1,
                                                                               @Param("status2") SubStatus status2);
 
+    @Query("SELECT s FROM Subscription s " +
+            "WHERE (s.subscriber.id = :subscriberId AND s.targetUser.id = :targetUserId AND s.friendStatus = :friendStatus AND s.subStatus = :subStatus)")
+    Optional<Subscription> findByUserIdAndTargetUserIdAndFriendStatusAndSubsStatus(long subscriberId, long targetUserId, FriendStatus friendStatus, SubStatus subStatus);
 }

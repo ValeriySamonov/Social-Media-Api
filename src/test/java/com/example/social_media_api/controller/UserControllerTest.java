@@ -1,7 +1,10 @@
 package com.example.social_media_api.controller;
 
 import com.example.social_media_api.SocialMediaApiApplication;
+import com.example.social_media_api.container.BaseIntegrationContainer;
 import com.example.social_media_api.dto.user.CreateUserDTO;
+import com.example.social_media_api.model.User;
+import com.example.social_media_api.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.json.JSONObject;
@@ -12,36 +15,24 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = SocialMediaApiApplication.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@Testcontainers
 @AutoConfigureMockMvc
-public class UserControllerTest {
+public class UserControllerTest extends BaseIntegrationContainer {
 
     @Autowired
     MockMvc mockMvc;
 
-    @Container
-    private static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:latest")
-            .withUsername("postgres")
-            .withPassword("hyantiv4");
-
-    @DynamicPropertySource
-    static void postgresProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
-    }
+    @Autowired
+    private UserRepository userRepository;
 
     @DisplayName("Тест для метода создания пользователя")
     @Test
@@ -50,7 +41,7 @@ public class UserControllerTest {
 
         CreateUserDTO createUserDTO = new CreateUserDTO()
                 .setUsername("user1")
-                .setEmail("email@mail.com")
+                .setEmail("user1@example.com")
                 .setPasswordHash("password1");
 
         String jsonCreateUser = new ObjectMapper().writeValueAsString(createUserDTO);
@@ -59,7 +50,14 @@ public class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonCreateUser))
                 .andExpect(status().isOk());
+
+        Optional<User> savedUser = userRepository.findByUsername("user1");
+        assertTrue(savedUser.isPresent());
+        assertEquals("user1@example.com", savedUser.get().getEmail());
+        assertEquals("password1", savedUser.get().getPasswordHash());
+
     }
+
 
     @DisplayName("Тест для метода создания пользователя при неправильном адресе email")
     @Test
