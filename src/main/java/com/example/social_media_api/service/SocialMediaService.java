@@ -1,7 +1,6 @@
 package com.example.social_media_api.service;
 
-import com.example.social_media_api.dto.friendship.ActionFriendship;
-import com.example.social_media_api.dto.friendship.FriendshipRequestDTO;
+import com.example.social_media_api.dto.friendship.FriendshipDTO;
 import com.example.social_media_api.dto.message.ChatDTO;
 import com.example.social_media_api.dto.message.MessageDTO;
 import com.example.social_media_api.dto.post.CreatePostDTO;
@@ -19,10 +18,10 @@ public interface SocialMediaService {
     void createUser(CreateUserDTO createUserDTO);
     void createPost(CreatePostDTO createPostDTO, List<MultipartFile> files);
     Page<PostDTO> getPostByUserId(Long userId, int page);
-    void sendFriendshipRequest(FriendshipRequestDTO friendshipRequestDTO);
-    void acceptFriendshipRequest(ActionFriendship actionFriendship);
-    void declineFriendshipRequest(ActionFriendship actionFriendship);
-    void removeFriend(ActionFriendship actionFriendship);
+    void sendFriendshipRequest(FriendshipDTO friendshipDTO);
+    void acceptFriendshipRequest(FriendshipDTO friendshipDTO);
+    void declineFriendshipRequest(FriendshipDTO friendshipDTO);
+    void removeFriend(FriendshipDTO friendshipDTO);
     void updatePost(Long postId, UpdatePostDTO updatePostDTO, List<MultipartFile> addedFiles) throws IOException;
     void deletePost(DeletePostDTO deletePostDTO);
     void sendMessage(MessageDTO messageDTO);

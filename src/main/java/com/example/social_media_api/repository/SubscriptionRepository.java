@@ -10,7 +10,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface SubscriptionRepository extends JpaRepository<Subscription, Long> {
-    List<Subscription> findBySubscriberId(Long subscriberId);
     Subscription findBySubscriberIdAndTargetUserIdAndFriendStatus(Long subscriberId, Long targetUserId, FriendStatus friendStatus);
 
     @Query("SELECT s FROM Subscription s " +
