@@ -28,9 +28,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-@Service
+
+@Service("userDetailsService1")
 @RequiredArgsConstructor
-public class SocialMediaServiceImpl implements SocialMediaService {
+public class SocialMediaServiceImpl implements SocialMediaService{
 
     static final int PAGE_SIZE = 10;
 

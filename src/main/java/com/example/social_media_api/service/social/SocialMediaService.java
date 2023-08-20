@@ -21,5 +21,6 @@ public interface SocialMediaService {
     void updatePost(Long postId, UpdatePostDTO updatePostDTO, List<MultipartFile> addedFiles) throws IOException;
     void deletePost(Long userId, Long postId);
     Page<PostDTO> getUserActivityFeed(Long userId, int page);
+    //User getByLogin(String login);
 
 }

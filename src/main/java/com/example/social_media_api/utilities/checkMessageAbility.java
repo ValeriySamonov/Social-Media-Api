@@ -14,7 +14,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
-public class MessageAbility {
+public class checkMessageAbility {
 
     private final UserRepository userRepository;
     private final SubscriptionRepository subscriptionRepository;
