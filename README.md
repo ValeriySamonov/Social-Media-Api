@@ -9,8 +9,8 @@
 
 ## Технологии
 
-- Java 17
-- Spring Boot 3.0.6
+- Java
+- Spring Boot
 - Spring Security
 - JWT (JSON Web Token)
 - Liquibase
