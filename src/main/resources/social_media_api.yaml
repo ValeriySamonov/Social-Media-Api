@@ -48,16 +48,8 @@ paths:
       responses:
         '200':
           description: Пост успешно обновлён
-          content:
-            '*/*':
-              schema:
-                type: string
         '400':
           description: Пользователь/пост не существует
-          content:
-            '*/*':
-              schema:
-                type: string
   /users:
     post:
       tags:
@@ -79,19 +71,22 @@ paths:
           content:
             '*/*':
               schema:
-                type: string
+                type: integer
+                format: int64
         '400':
           description: Пользователь с таким именем уже существует
           content:
             '*/*':
               schema:
-                type: string
+                type: integer
+                format: int64
         '409':
           description: Данные вводятся в неверном формате
           content:
             '*/*':
               schema:
-                type: string
+                type: integer
+                format: int64
   /api/posts:
     post:
       tags:
@@ -120,7 +115,15 @@ paths:
           content:
             '*/*':
               schema:
-                type: string
+                type: integer
+                format: int64
+        '404':
+          description: Пользователь не существует
+          content:
+            '*/*':
+              schema:
+                type: integer
+                format: int64
     delete:
       tags:
         - Social Media
@@ -145,16 +148,8 @@ paths:
       responses:
         '200':
           description: Пост успешно удалён
-          content:
-            '*/*':
-              schema:
-                type: string
-        '400':
-          description: Пост не существует
-          content:
-            '*/*':
-              schema:
-                type: string
+        '404':
+          description: Пользователь/пост не существует
   /api/messages:
     post:
       tags:
@@ -171,22 +166,10 @@ paths:
       responses:
         '200':
           description: Сообщение успешно отправлено
-          content:
-            '*/*':
-              schema:
-                type: string
         '400':
           description: Вы не можете подписаться на себя/писать себе
-          content:
-            '*/*':
-              schema:
-                type: string
         '409':
           description: Пользователь не являются вашим другом
-          content:
-            '*/*':
-              schema:
-                type: string
   /api/friendship/unfriend:
     post:
       tags:
@@ -205,16 +188,8 @@ paths:
       responses:
         '200':
           description: Вы больше не друзья/подписка отменена
-          content:
-            '*/*':
-              schema:
-                type: string
-        '400':
+        '404':
           description: Пользователь не существует
-          content:
-            '*/*':
-              schema:
-                type: string
   /api/friendship/request:
     post:
       tags:
@@ -234,16 +209,8 @@ paths:
       responses:
         '200':
           description: Запрос на дружбу отправлен
-          content:
-            '*/*':
-              schema:
-                type: string
-        '400':
+        '404':
           description: Пользователь не существует
-          content:
-            '*/*':
-              schema:
-                type: string
   /api/friendship/reject:
     post:
       tags:
@@ -262,16 +229,8 @@ paths:
       responses:
         '200':
           description: Запрос на дружбу отклонен
-          content:
-            '*/*':
-              schema:
-                type: string
-        '400':
+        '404':
           description: Пользователь не существует
-          content:
-            '*/*':
-              schema:
-                type: string
   /api/friendship/accept:
     post:
       tags:
@@ -290,16 +249,8 @@ paths:
       responses:
         '200':
           description: Запрос на дружбу принят
-          content:
-            '*/*':
-              schema:
-                type: string
-        '400':
+        '404':
           description: Пользователь не существует
-          content:
-            '*/*':
-              schema:
-                type: string
   /api/posts/{userId}:
     get:
       tags:
@@ -330,7 +281,7 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/PagePostDTO'
-        '400':
+        '404':
           description: Пользователь не существует
           content:
             '*/*':
@@ -368,7 +319,7 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/PagePostDTO'
-        '400':
+        '404':
           description: Пользователь не существует
           content:
             '*/*':
@@ -436,12 +387,12 @@ components:
     PagePostDTO:
       type: object
       properties:
-        totalPages:
-          type: integer
-          format: int32
         totalElements:
           type: integer
           format: int64
+        totalPages:
+          type: integer
+          format: int32
         size:
           type: integer
           format: int32
@@ -479,9 +430,9 @@ components:
         pageSize:
           type: integer
           format: int32
-        paged:
-          type: boolean
         unpaged:
+          type: boolean
+        paged:
           type: boolean
     PostDTO:
       type: object

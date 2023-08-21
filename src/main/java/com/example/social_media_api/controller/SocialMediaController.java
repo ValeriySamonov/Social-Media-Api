@@ -4,7 +4,7 @@ import com.example.social_media_api.dto.friendship.FriendshipDTO;
 import com.example.social_media_api.dto.post.CreatePostDTO;
 import com.example.social_media_api.dto.post.PostDTO;
 import com.example.social_media_api.dto.post.UpdatePostDTO;
-import com.example.social_media_api.service.SocialMediaService;
+import com.example.social_media_api.service.social.SocialMediaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -30,21 +30,22 @@ public class SocialMediaController {
     // Создание поста
     @Operation(summary = "Создать пост", description = "Пользователи могут создавать новые посты, указывая текст, заголовок и прикрепляя изображения.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Пост успешно опубликован")
+            @ApiResponse(responseCode = "200", description = "Пост успешно опубликован"),
+            @ApiResponse(responseCode = "404", description = "Пользователь не существует")
     })
     @PostMapping(value = "/posts", consumes = "multipart/form-data")
-    public ResponseEntity<String> createPost(
+    public Long createPost(
             @ModelAttribute("createPostDTO") CreatePostDTO createPostDTO,
             @RequestParam(name = "files", required = false) List<MultipartFile> files) {
-        socialMediaService.createPost(createPostDTO, files);
-        return ResponseEntity.ok("Пост успешно опубликован");
+
+        return socialMediaService.createPost(createPostDTO, files);
     }
 
     // Получение всех постов по ID пользователя
     @Operation(summary = "Получить пост пользователя", description = "Пользователи могут просматривать посты других пользователей.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Запрос успешно выполнен"),
-            @ApiResponse(responseCode = "400", description = "Пользователь не существует")
+            @ApiResponse(responseCode = "404", description = "Пользователь не существует")
     })
     @GetMapping("/posts/{userId}")
     public ResponseEntity<Page<PostDTO>> getPostByUserId(@Parameter(description = "User ID") @PathVariable Long userId,
@@ -59,7 +60,7 @@ public class SocialMediaController {
             @ApiResponse(responseCode = "400", description = "Пользователь/пост не существует")
     })
     @PutMapping(value = "/posts/{postId}", consumes = "multipart/form-data")
-    public ResponseEntity<String> updatePost(
+    public void updatePost(
             @Parameter(description = "ID поста для редактирования") @PathVariable Long postId,
             @ModelAttribute UpdatePostDTO updatePostDTO,
             @RequestParam(name = "addedFiles", required = false) List<MultipartFile> addedFiles) {
@@ -69,21 +70,20 @@ public class SocialMediaController {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return ResponseEntity.ok("Пост успешно обновлён");
     }
 
     // Удаление поста
     @Operation(summary = "Удалить свой пост", description = "Пользователи могут удалять свои собственные посты.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Пост успешно удалён"),
-            @ApiResponse(responseCode = "400", description = "Пост не существует")
+            @ApiResponse(responseCode = "404", description = "Пользователь/пост не существует")
     })
     @DeleteMapping("/posts")
-    public ResponseEntity<String> deletePost(
+    public void deletePost(
             @Parameter(description = "ID пользователя") @RequestParam Long userId,
             @Parameter(description = "ID поста для удаления") @RequestParam Long postId) {
+
         socialMediaService.deletePost(userId, postId);
-        return ResponseEntity.ok("Пост успешно удалён");
     }
 
 
@@ -92,13 +92,13 @@ public class SocialMediaController {
             "Пользователь, отправивший заявку, остается подписчиком до тех пор, пока сам не откажется от подписки.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Запрос на дружбу отправлен"),
-            @ApiResponse(responseCode = "400", description = "Пользователь не существует")
+            @ApiResponse(responseCode = "404", description = "Пользователь не существует")
     })
     @PostMapping("/friendship/request")
-    public ResponseEntity<String> sendFriendshipRequest(
+    public void sendFriendshipRequest(
             @RequestBody FriendshipDTO friendshipDTO) {
+
         socialMediaService.sendFriendshipRequest(friendshipDTO);
-        return ResponseEntity.ok("Запрос на дружбу отправлен");
     }
 
     // Принятие запроса на подписку (подтверждение дружбы)
@@ -106,13 +106,13 @@ public class SocialMediaController {
             "оба пользователя становятся друзьями.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Запрос на дружбу принят"),
-            @ApiResponse(responseCode = "400", description = "Пользователь не существует")
+            @ApiResponse(responseCode = "404", description = "Пользователь не существует")
     })
     @PostMapping("/friendship/accept")
-    public ResponseEntity<String> acceptFriendshipRequest(
+    public void acceptFriendshipRequest(
             @RequestBody FriendshipDTO friendshipDTO) {
+
         socialMediaService.acceptFriendshipRequest(friendshipDTO);
-        return ResponseEntity.ok("Запрос на дружбу принят");
     }
 
     // Отклонение запроса на подписку/Удаление друга (отклонение дружбы/отписка)
@@ -120,13 +120,13 @@ public class SocialMediaController {
             "то пользователь, отправивший заявку, все равно остается подписчиком.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Запрос на дружбу отклонен"),
-            @ApiResponse(responseCode = "400", description = "Пользователь не существует")
+            @ApiResponse(responseCode = "404", description = "Пользователь не существует")
     })
     @PostMapping("/friendship/reject")
-    public ResponseEntity<String> declineFriendshipRequest(
+    public void declineFriendshipRequest(
             @RequestBody FriendshipDTO friendshipDTO) {
+
         socialMediaService.declineFriendshipRequest(friendshipDTO);
-        return ResponseEntity.ok("Запрос на дружбу отклонен");
     }
 
     // Удаление друга (отписка)
@@ -134,13 +134,13 @@ public class SocialMediaController {
             "Второй пользователь при этом остаётся подписчиком первого.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Вы больше не друзья/подписка отменена"),
-            @ApiResponse(responseCode = "400", description = "Пользователь не существует")
+            @ApiResponse(responseCode = "404", description = "Пользователь не существует")
     })
     @PostMapping("/friendship/unfriend")
-    public ResponseEntity<String> removeFriend(
+    public void removeFriend(
             @RequestBody FriendshipDTO friendshipDTO) {
+
         socialMediaService.removeFriend(friendshipDTO);
-        return ResponseEntity.ok("Вы больше не друзья/подписка отменена");
     }
 
     //Лента активности
@@ -148,7 +148,7 @@ public class SocialMediaController {
             "на которых он подписан.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Запрос успешно выполнен"),
-            @ApiResponse(responseCode = "400", description = "Пользователь не существует")
+            @ApiResponse(responseCode = "404", description = "Пользователь не существует")
     })
     @GetMapping("/activity-feed/{userId}")
     public ResponseEntity<Page<PostDTO>> getUserActivityFeed(

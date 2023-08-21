@@ -14,12 +14,12 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
-public class CheckUp {
+public class checkMessageAbility {
 
     private final UserRepository userRepository;
     private final SubscriptionRepository subscriptionRepository;
 
-    public List<User> checkUsersForMessaging(Long userId1, Long userId2) {
+    public List<User> messageAbility(Long userId1, Long userId2) {
 
         if (userId1.equals(userId2)) {
             throw new IllegalArgumentException();
@@ -34,8 +34,8 @@ public class CheckUp {
         List<User> users = new ArrayList<>();
         User sender = userRepository.findById(userId1).orElseThrow(UserNotFoundException::new);
         User receiver = userRepository.findById(userId2).orElseThrow(UserNotFoundException::new);
-        users.add(0, sender);
-        users.add(1, receiver);
+        users.add(sender);
+        users.add(receiver);
 
         return users;
 

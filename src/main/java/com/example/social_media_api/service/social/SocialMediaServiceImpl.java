@@ -1,22 +1,23 @@
-package com.example.social_media_api.service;
+package com.example.social_media_api.service.social;
 
 import com.example.social_media_api.dto.friendship.FriendshipDTO;
-import com.example.social_media_api.dto.message.MessageDTO;
 import com.example.social_media_api.dto.post.CreatePostDTO;
 import com.example.social_media_api.dto.post.PostDTO;
 import com.example.social_media_api.dto.post.UpdatePostDTO;
-import com.example.social_media_api.dto.user.CreateUserDTO;
 import com.example.social_media_api.enums.FriendStatus;
 import com.example.social_media_api.enums.SubStatus;
-import com.example.social_media_api.exception.UserAlreadyExistsException;
 import com.example.social_media_api.exception.UserNotFoundException;
-import com.example.social_media_api.model.*;
-import com.example.social_media_api.repository.*;
-import com.example.social_media_api.utilities.CheckUp;
+import com.example.social_media_api.model.Post;
+import com.example.social_media_api.model.PostImage;
+import com.example.social_media_api.model.Subscription;
+import com.example.social_media_api.model.User;
+import com.example.social_media_api.repository.PostImageRepository;
+import com.example.social_media_api.repository.PostRepository;
+import com.example.social_media_api.repository.SubscriptionRepository;
+import com.example.social_media_api.repository.UserRepository;
 import com.example.social_media_api.utilities.ImageFileAction;
 import com.example.social_media_api.utilities.mapper.MapEntityToDTO;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -27,39 +28,23 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-@Service
+
+@Service("userDetailsService1")
 @RequiredArgsConstructor
-public class SocialMediaServiceImpl implements SocialMediaService {
+public class SocialMediaServiceImpl implements SocialMediaService{
 
     static final int PAGE_SIZE = 10;
 
     private final ImageFileAction imageFileAction;
     private final MapEntityToDTO mapEntityToDTO;
-    private final CheckUp checkUp;
 
     private final UserRepository userRepository;
     private final PostImageRepository postImageRepository;
     private final PostRepository postRepository;
     private final SubscriptionRepository subscriptionRepository;
-    private final MessageRepository messageRepository;
-    private final ModelMapper modelMapper;
 
     @Override
-    public void createUser(CreateUserDTO createUserDTO) {
-        String username = createUserDTO.getUsername();
-
-        // Проверка наличия пользователя с таким именем
-        if (userRepository.findByUsername(username).isPresent()) {
-            throw new UserAlreadyExistsException();
-        }
-
-        User user = modelMapper.map(createUserDTO, User.class);
-        userRepository.save(user);
-    }
-
-
-    @Override
-    public void createPost(CreatePostDTO createPostDTO, List<MultipartFile> files) {
+    public Long createPost(CreatePostDTO createPostDTO, List<MultipartFile> files) {
         User user = userRepository.findById(createPostDTO.getCreatorId()).orElseThrow(UserNotFoundException::new);
         Post post = new Post();
         post.setText(createPostDTO.getText());
@@ -71,7 +56,7 @@ public class SocialMediaServiceImpl implements SocialMediaService {
         if (!CollectionUtils.isEmpty(files)) {
             imageFileAction.saveFiles(files, post);
         }
-
+        return post.getId();
     }
 
     @Override
@@ -182,6 +167,9 @@ public class SocialMediaServiceImpl implements SocialMediaService {
             throw new NullPointerException();
         }
 
+        subscription.setFriendStatus(FriendStatus.DECLINE);
+        subscriptionRepository.save(subscription);
+
     }
 
     @Override
@@ -205,22 +193,6 @@ public class SocialMediaServiceImpl implements SocialMediaService {
 
         subscriptionRepository.save(subscription);
 
-    }
-
-    @Override
-    public void sendMessage(MessageDTO messageDTO) {
-
-        List<User> users = checkUp.checkUsersForMessaging(messageDTO.getSenderId(), messageDTO.getReceiverId());
-
-        Message message = new Message();
-        message.setSender(users.get(0));
-        message.setReceiver(users.get(1));
-        message.setContent(messageDTO.getContent());
-        message.setSentAt(LocalDateTime.now());
-
-        messageRepository.save(message);
-
-        modelMapper.map(message, MessageDTO.class);
     }
 
     @Override

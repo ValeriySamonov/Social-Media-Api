@@ -201,7 +201,7 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
                 .andExpect(status().isOk());
 
         Optional<Subscription> declineRequest = subscriptionRepository.findByParamWithAnd(
-                friendshipDTO.getTargetUserId(), friendshipDTO.getUserId(), FriendStatus.UNACCEPTED, SubStatus.USER2);
+                friendshipDTO.getTargetUserId(), friendshipDTO.getUserId(), FriendStatus.DECLINE, SubStatus.USER2);
 
         assertTrue(declineRequest.isPresent());
         assertEquals(friendshipDTO.getTargetUserId(), declineRequest.get().getSubscriber().getId());
