@@ -43,7 +43,7 @@ public class MessageControllerTest extends BaseIntegrationContainer {
 
     @BeforeEach
     void prepareForTest() {
-        getAuthentication.authenticationUp();
+        getAuthentication.createAuthentication();
     }
 
     @DisplayName("Тест для метода отправки сообщения")

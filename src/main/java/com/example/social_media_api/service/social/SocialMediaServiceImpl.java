@@ -94,7 +94,7 @@ public class SocialMediaServiceImpl implements SocialMediaService{
             postImageRepository.deleteAll(removedImages);
 
             for (PostImage removedImage : removedImages) {
-                imageFileAction.deleteImageFromDirectory(removedImage.getFileName());
+                imageFileAction.deleteFileFromDirectory(removedImage.getFileName());
             }
         }
 
@@ -109,7 +109,7 @@ public class SocialMediaServiceImpl implements SocialMediaService{
 
             List<PostImage> removedImages = post.getImages();
             for (PostImage removedImage : removedImages) {
-                imageFileAction.deleteImageFromDirectory(removedImage.getFileName());
+                imageFileAction.deleteFileFromDirectory(removedImage.getFileName());
             }
             postImageRepository.deleteAll(removedImages);
             postRepository.delete(post);

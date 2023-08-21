@@ -10,10 +10,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class GetAuthentication {
 
-    public void authenticationUp() {
+    public void createAuthentication() {
 
         SocialMediaUserDetails userDetails;
-            userDetails = new SocialMediaUserDetails(new User(1L,"user1", "email1@mail.com", "password1"));
+            userDetails = new SocialMediaUserDetails(new User(1L,"user1", "user1@example.com", "password1"));
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 

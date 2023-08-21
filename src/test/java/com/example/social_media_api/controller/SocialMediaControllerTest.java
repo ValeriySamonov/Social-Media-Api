@@ -13,6 +13,7 @@ import com.example.social_media_api.model.Subscription;
 import com.example.social_media_api.repository.PostRepository;
 import com.example.social_media_api.repository.SubscriptionRepository;
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,13 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -55,7 +63,12 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
 
     @BeforeEach
     void prepareForTest() {
-        getAuthentication.authenticationUp();
+        getAuthentication.createAuthentication();
+    }
+
+    @AfterAll
+    static void deleteFilesAndDirectory() throws IOException {
+        deleteDirectory(new File("uploads/pictures_test"));
     }
 
     @DisplayName("Тест для метода создания поста")
@@ -122,6 +135,7 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
         assertTrue(savedPost.isPresent());
         assertEquals("Updated Title", savedPost.get().getTitle());
         assertEquals("Updated Text", savedPost.get().getText());
+
     }
 
     @DisplayName("Тест для метода постраничного вывода постов пользователя")
@@ -253,4 +267,25 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isNotEmpty());
     }
+
+    public static void deleteDirectory(File directory) throws IOException {
+        if (directory.isDirectory()) {
+            Path path = directory.toPath();
+            Files.walkFileTree(path, new SimpleFileVisitor<>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    Files.delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        }
+    }
+
+
 }
