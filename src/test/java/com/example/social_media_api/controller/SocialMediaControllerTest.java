@@ -2,6 +2,7 @@ package com.example.social_media_api.controller;
 
 import com.example.social_media_api.SocialMediaApiApplication;
 import com.example.social_media_api.container.BaseIntegrationContainer;
+import com.example.social_media_api.data.GetAuthentication;
 import com.example.social_media_api.dto.friendship.FriendshipDTO;
 import com.example.social_media_api.dto.post.CreatePostDTO;
 import com.example.social_media_api.dto.post.UpdatePostDTO;
@@ -12,6 +13,7 @@ import com.example.social_media_api.model.Subscription;
 import com.example.social_media_api.repository.PostRepository;
 import com.example.social_media_api.repository.SubscriptionRepository;
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +49,14 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
 
     @Autowired
     SubscriptionRepository subscriptionRepository;
+
+    @Autowired
+    private GetAuthentication getAuthentication;
+
+    @BeforeEach
+    void prepareForTest() {
+        getAuthentication.authenticationUp();
+    }
 
     @DisplayName("Тест для метода создания поста")
     @Test

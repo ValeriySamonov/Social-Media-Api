@@ -1,9 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: modifyFriendshipStatusColumnType
-      author: VVS
-      changes:
-        - modifyDataType:
-            tableName: user_activities
-            columnName: activity_type
-            newDataType: SMALLINT

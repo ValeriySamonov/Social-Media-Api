@@ -3,8 +3,6 @@ package com.example.social_media_api.config;
 import com.example.social_media_api.security.JwtCsrfFilter;
 import com.example.social_media_api.security.JwtTokenRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -16,8 +14,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CsrfFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.web.servlet.HandlerExceptionResolver;
 
 
 @Configuration
@@ -29,8 +25,6 @@ public class SecurityConfig {
 
     private final JwtTokenRepository jwtTokenRepository;
 
-    @Qualifier("handlerExceptionResolver")
-    private final HandlerExceptionResolver resolver;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -50,7 +44,7 @@ public class SecurityConfig {
         http
                 .csrf()
                 .disable()
-                .addFilterAt(new JwtCsrfFilter(jwtTokenRepository, resolver), CsrfFilter.class)
+                .addFilterAt(new JwtCsrfFilter(jwtTokenRepository), CsrfFilter.class)
                 .authorizeHttpRequests(this::customizeRequest);
         return http.build();
     }
@@ -66,8 +60,7 @@ public class SecurityConfig {
                     .and()
                     .logout().logoutUrl("/logout")
                     .and()
-                    .httpBasic()
-                    .authenticationEntryPoint(((request, response, e) -> resolver.resolveException(request, response, null, e)));
+                    .httpBasic();
 
         } catch (Exception e) {
             throw new RuntimeException(e);

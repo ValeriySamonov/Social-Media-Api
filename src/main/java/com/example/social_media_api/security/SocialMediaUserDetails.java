@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 
 @RequiredArgsConstructor
-public class SecurityUserPrincipal implements UserDetails {
+public class SocialMediaUserDetails implements UserDetails {
 
     private final User user;
 
@@ -20,7 +20,7 @@ public class SecurityUserPrincipal implements UserDetails {
     @Override
     // Возвращает пароль пользователя.
     public String getPassword() {
-        return user.getPasswordHash();
+        return user.getPassword();
     }
 
     @Override

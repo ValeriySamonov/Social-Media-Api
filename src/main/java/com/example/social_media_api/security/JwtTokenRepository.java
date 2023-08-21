@@ -47,7 +47,6 @@ public class JwtTokenRepository implements CsrfTokenRepository {
                     .compact();
         } catch (JwtException e) {
             e.printStackTrace();
-            //ignore
         }
         return new DefaultCsrfToken("x-csrf-token", "_csrf", token);
     }
@@ -70,8 +69,4 @@ public class JwtTokenRepository implements CsrfTokenRepository {
         return (CsrfToken) request.getAttribute(CsrfToken.class.getName());
     }
 
-    public void clearToken(HttpServletResponse response) {
-        if (response.getHeaderNames().contains("x-csrf-token"))
-            response.setHeader("x-csrf-token", "");
-    }
 }

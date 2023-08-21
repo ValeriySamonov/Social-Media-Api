@@ -27,10 +27,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = SocialMediaApiApplication.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
+
 public class UserControllerTest extends BaseIntegrationContainer {
 
     @Autowired
-    MockMvc mockMvc;
+    MockMvc  mockMvc;
 
     @Autowired
     private UserRepository userRepository;
@@ -38,12 +39,13 @@ public class UserControllerTest extends BaseIntegrationContainer {
     @DisplayName("Тест для метода создания пользователя")
     @Test
     @SneakyThrows
+
     void createUserTest() {
 
         CreateUserDTO createUserDTO = new CreateUserDTO()
                 .setUsername("user1")
                 .setEmail("user1@example.com")
-                .setPasswordHash("password1");
+                .setPassword("password1");
 
         String jsonCreateUser = new ObjectMapper().writeValueAsString(createUserDTO);
 
@@ -55,7 +57,7 @@ public class UserControllerTest extends BaseIntegrationContainer {
         Optional<User> savedUser = userRepository.findByUsername("user1");
         assertTrue(savedUser.isPresent());
         assertEquals(createUserDTO.getEmail(), savedUser.get().getEmail());
-        assertEquals(createUserDTO.getPasswordHash(), savedUser.get().getPasswordHash());
+        assertEquals(createUserDTO.getPassword(), savedUser.get().getPassword());
 
     }
 

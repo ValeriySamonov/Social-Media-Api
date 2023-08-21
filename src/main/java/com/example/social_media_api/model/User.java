@@ -1,12 +1,14 @@
 package com.example.social_media_api.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 
 @Entity
 @Data
+@AllArgsConstructor
 @RequiredArgsConstructor
 @Accessors(chain = true)
 @Table(name = "users")
@@ -21,7 +23,7 @@ public class User {
 
     private String email;
 
-    private String passwordHash;
+    private String password;
 
 }
 

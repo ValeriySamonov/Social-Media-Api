@@ -1,0 +1,47 @@
+databaseChangeLog:
+  - changeSet:
+      id: createSubscriptionsTable
+      author: VVS
+      changes:
+        - createTable:
+            tableName: subscriptions
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: subscriber_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: fk_subscriber
+                    references: users(id)
+              - column:
+                  name: target_user_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: fk_target_user
+                    references: users(id)
+              - column:
+                  name: friend_status
+                  type: SMALLINT
+              - column:
+                  name: subs_status
+                  type: SMALLINT
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+            foreignKeys:
+              - foreignKey:
+                  baseTableName: subscriptions
+                  baseColumnNames: subscriber_id
+                  referencedTableName: users
+                  referencedColumnNames: id
+              - foreignKey:
+                  baseTableName: subscriptions
+                  baseColumnNames: target_user_id
+                  referencedTableName: users
+                  referencedColumnNames: id
+
