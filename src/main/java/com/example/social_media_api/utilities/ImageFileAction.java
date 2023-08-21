@@ -63,7 +63,7 @@ public class ImageFileAction {
         return fileName;
     }
 
-    public void deleteImageFromDirectory(String imageUrl) {
+    public void deleteFileFromDirectory(String imageUrl) {
 
         Path imagePath = Paths.get(uploadDir).resolve(imageUrl);
 
