@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,10 +36,11 @@ public class SocialMediaController {
     })
     @PostMapping(value = "/posts", consumes = "multipart/form-data")
     public Long createPost(
+            Authentication authentication,
             @ModelAttribute("createPostDTO") CreatePostDTO createPostDTO,
             @RequestParam(name = "files", required = false) List<MultipartFile> files) {
 
-        return socialMediaService.createPost(createPostDTO, files);
+        return socialMediaService.createPost(authentication, createPostDTO, files);
     }
 
     // Получение всех постов по ID пользователя
@@ -48,9 +50,10 @@ public class SocialMediaController {
             @ApiResponse(responseCode = "404", description = "Пользователь не существует")
     })
     @GetMapping("/posts/{userId}")
-    public ResponseEntity<Page<PostDTO>> getPostByUserId(@Parameter(description = "User ID") @PathVariable Long userId,
+    public ResponseEntity<Page<PostDTO>> getPostByUserId(Authentication authentication,
+                                                         @Parameter(description = "User ID") @PathVariable Long userId,
                                                          @Parameter(description = "Номер страницы") @RequestParam(value = "page", required = false, defaultValue = "0") int page) {
-        return ResponseEntity.ok(socialMediaService.getPostByUserId(userId, page));
+        return ResponseEntity.ok(socialMediaService.getPostByUserId(authentication, userId, page));
     }
 
     // Обновление поста
@@ -61,12 +64,13 @@ public class SocialMediaController {
     })
     @PutMapping(value = "/posts/{postId}", consumes = "multipart/form-data")
     public void updatePost(
+            Authentication authentication,
             @Parameter(description = "ID поста для редактирования") @PathVariable Long postId,
             @ModelAttribute UpdatePostDTO updatePostDTO,
             @RequestParam(name = "addedFiles", required = false) List<MultipartFile> addedFiles) {
 
         try {
-            socialMediaService.updatePost(postId, updatePostDTO, addedFiles);
+            socialMediaService.updatePost(authentication, postId, updatePostDTO, addedFiles);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -80,10 +84,11 @@ public class SocialMediaController {
     })
     @DeleteMapping("/posts")
     public void deletePost(
+            Authentication authentication,
             @Parameter(description = "ID пользователя") @RequestParam Long userId,
             @Parameter(description = "ID поста для удаления") @RequestParam Long postId) {
 
-        socialMediaService.deletePost(userId, postId);
+        socialMediaService.deletePost(authentication, userId, postId);
     }
 
 
@@ -96,9 +101,10 @@ public class SocialMediaController {
     })
     @PostMapping("/friendship/request")
     public void sendFriendshipRequest(
+            Authentication authentication,
             @RequestBody FriendshipDTO friendshipDTO) {
 
-        socialMediaService.sendFriendshipRequest(friendshipDTO);
+        socialMediaService.sendFriendshipRequest(authentication, friendshipDTO);
     }
 
     // Принятие запроса на подписку (подтверждение дружбы)
@@ -110,9 +116,10 @@ public class SocialMediaController {
     })
     @PostMapping("/friendship/accept")
     public void acceptFriendshipRequest(
+            Authentication authentication,
             @RequestBody FriendshipDTO friendshipDTO) {
 
-        socialMediaService.acceptFriendshipRequest(friendshipDTO);
+        socialMediaService.acceptFriendshipRequest(authentication, friendshipDTO);
     }
 
     // Отклонение запроса на подписку/Удаление друга (отклонение дружбы/отписка)
@@ -124,9 +131,10 @@ public class SocialMediaController {
     })
     @PostMapping("/friendship/reject")
     public void declineFriendshipRequest(
+            Authentication authentication,
             @RequestBody FriendshipDTO friendshipDTO) {
 
-        socialMediaService.declineFriendshipRequest(friendshipDTO);
+        socialMediaService.declineFriendshipRequest(authentication, friendshipDTO);
     }
 
     // Удаление друга (отписка)
@@ -138,9 +146,10 @@ public class SocialMediaController {
     })
     @PostMapping("/friendship/unfriend")
     public void removeFriend(
+            Authentication authentication,
             @RequestBody FriendshipDTO friendshipDTO) {
 
-        socialMediaService.removeFriend(friendshipDTO);
+        socialMediaService.removeFriend(authentication, friendshipDTO);
     }
 
     //Лента активности
@@ -152,9 +161,10 @@ public class SocialMediaController {
     })
     @GetMapping("/activity-feed/{userId}")
     public ResponseEntity<Page<PostDTO>> getUserActivityFeed(
+            Authentication authentication,
             @Parameter(description = "User ID") @PathVariable Long userId,
             @Parameter(description = "Номер страницы") @RequestParam(value = "page", required = false, defaultValue = "0") int page) {
-        Page<PostDTO> activityFeed = socialMediaService.getUserActivityFeed(userId, page);
+        Page<PostDTO> activityFeed = socialMediaService.getUserActivityFeed(authentication, userId, page);
         return ResponseEntity.ok(activityFeed);
     }
 

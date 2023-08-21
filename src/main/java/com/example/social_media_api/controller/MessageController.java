@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,8 +28,8 @@ public class MessageController {
             @ApiResponse(responseCode = "409", description = "Пользователь не являются вашим другом")
     })
     @PostMapping
-    public void sendMessage(@RequestBody MessageDTO messageDTO) {
-        messageService.sendMessage(messageDTO);
+    public void sendMessage(Authentication authentication, @RequestBody MessageDTO messageDTO) {
+        messageService.sendMessage(authentication, messageDTO);
     }
 
 }

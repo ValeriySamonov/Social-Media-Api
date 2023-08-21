@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: createPostTable
+      id: createPostsTable
       author: VVS
       changes:
         - createTable:
@@ -13,14 +13,17 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
               - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: fk_user
+                    references: users(id)
+              - column:
                   name: title
                   type: VARCHAR(255)
               - column:
                   name: text
                   type: TEXT
-              - column:
-                  name: user_id
-                  type: BIGINT
               - column:
                   name: created_at
                   type: TIMESTAMP

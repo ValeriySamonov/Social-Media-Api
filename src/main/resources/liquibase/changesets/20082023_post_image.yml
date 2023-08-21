@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: createPostImageTable
+      id: createPostImagesTable
       author: VVS
       changes:
         - createTable:
-            tableName: post_image
+            tableName: post_images
             columns:
               - column:
                   name: id
@@ -13,14 +13,16 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
               - column:
-                  name: file_name
-                  type: VARCHAR(255)
-              - column:
                   name: post_id
                   type: BIGINT
+              - column:
+                  name: file_name
+                  type: VARCHAR(255)
             foreignKeys:
               - foreignKey:
-                  baseTableName: post_image
+                  constraintName: fk_post_id
                   baseColumnNames: post_id
-                  referencedTableName: posts
+                  baseTableName: post_images
                   referencedColumnNames: id
+                  referencedTableName: posts
+

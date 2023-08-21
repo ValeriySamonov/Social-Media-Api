@@ -1,7 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: dropFriendshipTable
-      author: VVS
-      changes:
-        - dropTable:
-            tableName: friendships

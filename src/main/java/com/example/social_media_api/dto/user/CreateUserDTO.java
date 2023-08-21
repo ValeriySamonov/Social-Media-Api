@@ -16,5 +16,5 @@ public class CreateUserDTO {
     private String email;
 
     @NotEmpty(message = "Имя обязательно для заполнения")
-    private String passwordHash;
+    private String password;
 }

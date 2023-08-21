@@ -2,11 +2,13 @@ package com.example.social_media_api.controller;
 
 import com.example.social_media_api.SocialMediaApiApplication;
 import com.example.social_media_api.container.BaseIntegrationContainer;
+import com.example.social_media_api.data.GetAuthentication;
 import com.example.social_media_api.dto.message.MessageDTO;
 import com.example.social_media_api.model.Message;
 import com.example.social_media_api.repository.MessageRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,14 @@ public class MessageControllerTest extends BaseIntegrationContainer {
 
     @Autowired
     MessageRepository messageRepository;
+
+    @Autowired
+    private GetAuthentication getAuthentication;
+
+    @BeforeEach
+    void prepareForTest() {
+        getAuthentication.authenticationUp();
+    }
 
     @DisplayName("Тест для метода отправки сообщения")
     @Test

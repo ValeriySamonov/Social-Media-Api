@@ -1,5 +1,5 @@
 -- Вставка тестовых пользователей
-INSERT INTO users (username, email, password_hash)
+INSERT INTO users (username, email, password)
 VALUES ('user1', 'user1@example.com', 'password1'),
        ('user2', 'user2@example.com', 'password2'),
        ('user3', 'user3@example.com', 'password3');
@@ -7,7 +7,7 @@ VALUES ('user1', 'user1@example.com', 'password1'),
 INSERT INTO posts (title, text, user_id, created_at)
 VALUES ('Title', 'Text', 1, '2023-08-15 23:34:05.262185');
 
-INSERT INTO post_image (file_name, post_id)
+INSERT INTO post_images (file_name, post_id)
 VALUES ('test1.jpg', 1),
        ('test2.jpg', 1);
 

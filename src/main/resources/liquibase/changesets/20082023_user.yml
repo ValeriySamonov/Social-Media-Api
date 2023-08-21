@@ -19,5 +19,5 @@ databaseChangeLog:
                   name: email
                   type: VARCHAR(100)
               - column:
-                  name: password_hash
+                  name: password
                   type: VARCHAR(100)

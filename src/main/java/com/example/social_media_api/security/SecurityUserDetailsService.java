@@ -19,6 +19,6 @@ public class SecurityUserDetailsService implements UserDetailsService {
 
         User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
 
-        return new SecurityUserPrincipal(user);
+        return new SocialMediaUserDetails(user);
     }
 }

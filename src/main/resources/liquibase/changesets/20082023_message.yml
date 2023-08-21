@@ -1,0 +1,43 @@
+databaseChangeLog:
+  - changeSet:
+      id: createMessagesTable
+      author: VVS
+      changes:
+        - createTable:
+            tableName: messages
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: sender_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: fk_sender
+                    references: users(id)
+              - column:
+                  name: receiver_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: fk_receiver
+                    references: users(id)
+              - column:
+                  name: content
+                  type: TEXT
+              - column:
+                  name: sent_at
+                  type: TIMESTAMP
+            foreignKeys:
+              - foreignKey:
+                  baseTableName: messages
+                  baseColumnNames: sender_id
+                  referencedTableName: users
+                  referencedColumnNames: id
+              - foreignKey:
+                  baseTableName: messages
+                  baseColumnNames: receiver_id
+                  referencedTableName: users
+                  referencedColumnNames: id

@@ -14,6 +14,7 @@ public class UserServiceImpl implements UserService{
 
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+
     @Override
     public Long createUser(CreateUserDTO createUserDTO) {
         String username = createUserDTO.getUsername();
@@ -24,6 +25,7 @@ public class UserServiceImpl implements UserService{
         }
 
         User user = modelMapper.map(createUserDTO, User.class);
+        user.setPassword(createUserDTO.getPassword());
         userRepository.save(user);
         return user.getId();
     }
