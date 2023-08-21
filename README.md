@@ -11,8 +11,7 @@
 
 - Java
 - Spring Boot
-- Spring Security
-- JWT (JSON Web Token)
+- Spring Security + JWT (JSON Web Token)
 - Liquibase
 - PostgreSQL
 - Docker
