@@ -42,14 +42,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf()
-                .disable()
                 .addFilterAt(new JwtCsrfFilter(jwtTokenRepository), CsrfFilter.class)
-                .authorizeHttpRequests(this::customizeRequest);
+                .authorizeHttpRequests(this::customizeRequest)
+                .csrf()
+                .ignoringRequestMatchers("/users")
+                .ignoringRequestMatchers("/login");
+
         return http.build();
     }
 
-    private void customizeRequest(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry) {
+    protected void customizeRequest(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry) {
         try {
             registry.requestMatchers("/users")
                     .permitAll()

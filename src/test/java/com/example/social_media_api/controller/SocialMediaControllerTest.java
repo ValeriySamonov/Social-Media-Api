@@ -39,9 +39,9 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 
 @SpringBootTest(classes = SocialMediaApiApplication.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -87,6 +87,7 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
         mockMvc.perform(multipart("/api/posts")
                         .file(imageFile1)
                         .file(imageFile2)
+                        .with(csrf())
                         .flashAttr("createPostDTO", createPostDTO))
                 .andExpect(status().isOk());
 
@@ -128,6 +129,7 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
                             request.setMethod("PUT");
                             return request;
                         })
+                        .with(csrf())
                         .flashAttr("updatePostDTO", updatePostDTO))
                 .andExpect(status().isOk());
 
@@ -160,7 +162,7 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
         Long userId = 1L;
         Long postId = 1L;
 
-        mockMvc.perform(delete("/api/posts")
+        mockMvc.perform(delete("/api/posts").with(csrf())
                         .param("userId", String.valueOf(userId))
                         .param("postId", String.valueOf(postId))
                         .contentType(MediaType.APPLICATION_JSON))
@@ -176,7 +178,7 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
                 .setUserId(1L)
                 .setTargetUserId(3L);
 
-        mockMvc.perform(post("/api/friendship/request")
+        mockMvc.perform(post("/api/friendship/request").with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(friendshipDTO)))
                 .andExpect(status().isOk());
@@ -198,7 +200,7 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
                 .setUserId(1L)
                 .setTargetUserId(2L);
 
-        mockMvc.perform(post("/api/friendship/accept")
+        mockMvc.perform(post("/api/friendship/accept").with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(friendshipDTO)))
                 .andExpect(status().isOk());
@@ -219,7 +221,7 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
                 .setUserId(1L)
                 .setTargetUserId(2L);
 
-        mockMvc.perform(post("/api/friendship/reject")
+        mockMvc.perform(post("/api/friendship/reject").with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(friendshipDTO)))
                 .andExpect(status().isOk());
@@ -241,7 +243,7 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
                 .setUserId(1L)
                 .setTargetUserId(3L);
 
-        mockMvc.perform(post("/api/friendship/unfriend")
+        mockMvc.perform(post("/api/friendship/unfriend").with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(friendshipDTO)))
                 .andExpect(status().isOk());

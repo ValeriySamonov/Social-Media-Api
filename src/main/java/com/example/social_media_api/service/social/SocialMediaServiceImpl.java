@@ -46,6 +46,9 @@ public class SocialMediaServiceImpl implements SocialMediaService{
 
     @Override
     public Long createPost(Authentication authentication, CreatePostDTO createPostDTO, List<MultipartFile> files) {
+
+        System.out.println(authentication.getName());
+
         User user = userRepository.findById(createPostDTO.getCreatorId()).orElseThrow(UserNotFoundException::new);
         Post post = new Post();
         post.setText(createPostDTO.getText());
