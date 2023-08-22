@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service("userDetailsService2")
+@Service()
 @RequiredArgsConstructor
 public class MessageServiceImpl implements MessageService{
 
