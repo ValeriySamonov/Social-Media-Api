@@ -1,6 +1,7 @@
 package com.example.social_media_api.controller;
 
 import com.example.social_media_api.dto.message.MessageDTO;
+import com.example.social_media_api.security.SocialMediaUserDetails;
 import com.example.social_media_api.service.message.MessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -29,7 +30,9 @@ public class MessageController {
     })
     @PostMapping
     public void sendMessage(Authentication authentication, @RequestBody MessageDTO messageDTO) {
-        messageService.sendMessage(authentication, messageDTO);
+        SocialMediaUserDetails socialMediaUserDetails = (SocialMediaUserDetails) authentication.getPrincipal();
+        messageDTO.setSenderId(socialMediaUserDetails.getUser().getId());
+        messageService.sendMessage(messageDTO);
     }
 
 }

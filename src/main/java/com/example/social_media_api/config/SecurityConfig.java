@@ -45,7 +45,7 @@ public class SecurityConfig {
                 .addFilterAt(new JwtCsrfFilter(jwtTokenRepository), CsrfFilter.class)
                 .authorizeHttpRequests(this::customizeRequest)
                 .csrf()
-                .ignoringRequestMatchers("/users")
+                .ignoringRequestMatchers("/api/users")
                 .ignoringRequestMatchers("/login");
 
         return http.build();
@@ -53,9 +53,15 @@ public class SecurityConfig {
 
     protected void customizeRequest(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry) {
         try {
-            registry.requestMatchers("/users")
+            registry.requestMatchers("/api/users")
                     .permitAll()
-                    .requestMatchers("/api/**")
+                    .requestMatchers("/api/posts/**")
+                    .authenticated()
+                    .requestMatchers("/api/friendship/**")
+                    .authenticated()
+                    .requestMatchers("/api/activity-feed")
+                    .authenticated()
+                    .requestMatchers("/api/messages")
                     .authenticated()
                     .and()
                     .formLogin().permitAll()

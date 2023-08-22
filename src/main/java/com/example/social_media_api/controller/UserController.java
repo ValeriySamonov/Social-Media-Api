@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "User", description = "Регистрация пользователя")
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -28,7 +28,7 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Пользователь с таким именем уже существует"),
             @ApiResponse(responseCode = "409", description = "Данные вводятся в неверном формате")
     })
-    @PostMapping()
+    @PostMapping("/users")
     public Long createUser(@Validated @RequestBody CreateUserDTO createUserDTO) {
         return userService.createUser(createUserDTO);
     }

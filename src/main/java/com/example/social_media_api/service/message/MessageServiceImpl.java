@@ -10,7 +10,6 @@ import com.example.social_media_api.repository.MessageRepository;
 import com.example.social_media_api.repository.SubscriptionRepository;
 import com.example.social_media_api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -26,7 +25,7 @@ public class MessageServiceImpl implements MessageService{
     private final UserRepository userRepository;
 
     @Override
-    public void sendMessage(Authentication authentication, MessageDTO messageDTO) {
+    public void sendMessage(MessageDTO messageDTO) {
 
         List<User> users = messageAbility(messageDTO.getSenderId(), messageDTO.getReceiverId());
 
