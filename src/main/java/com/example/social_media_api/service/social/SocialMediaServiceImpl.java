@@ -29,7 +29,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 
-@Service("userDetailsService1")
+@Service()
 @RequiredArgsConstructor
 public class SocialMediaServiceImpl implements SocialMediaService{
 
