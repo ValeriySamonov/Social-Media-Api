@@ -9,10 +9,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 
 @Getter
-@RequiredArgsConstructor
-public class SocialMediaUserDetails implements UserDetails {
+public class SecurityUserPrincipal implements UserDetails {
 
     private final User user;
+
+    public SecurityUserPrincipal(User user) {
+        this.user = user;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

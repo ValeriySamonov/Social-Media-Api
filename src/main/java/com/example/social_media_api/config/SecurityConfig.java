@@ -2,10 +2,12 @@ package com.example.social_media_api.config;
 
 import com.example.social_media_api.security.JwtCsrfFilter;
 import com.example.social_media_api.security.JwtTokenRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
@@ -18,12 +20,14 @@ import org.springframework.security.web.csrf.CsrfFilter;
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final UserDetailsService userDetailsService;
+    @Autowired
+    private UserDetailsService userDetailsService;
 
-    private final JwtTokenRepository jwtTokenRepository;
+    @Autowired
+    private JwtTokenRepository jwtTokenRepository;
 
 
     @Bean
@@ -42,20 +46,21 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(this::customizeRequest)
-                .csrf()
-                .ignoringRequestMatchers("/api/users")
-                .ignoringRequestMatchers("/login")
-                .and()
-                .addFilterAt(new JwtCsrfFilter(jwtTokenRepository), CsrfFilter.class);
-
+                //.addFilterAt(new JwtCsrfFilter(jwtTokenRepository), CsrfFilter.class)
+                .csrf().disable()
+                //.ignoringRequestMatchers("/api/users")
+                //.ignoringRequestMatchers("/login")
+               // .and()
+                .authorizeHttpRequests(this::customizeRequest);
 
         return http.build();
     }
 
     protected void customizeRequest(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry) {
         try {
-            registry.requestMatchers("/api/users")
+            registry
+                    .requestMatchers("/v2/api-docs", "/swagger-ui.html", "/swagger-resources/**", "/webjars/**").permitAll()
+                    .requestMatchers("/api/users")
                     .permitAll()
                     .requestMatchers("/api/posts/**")
                     .authenticated()
@@ -66,11 +71,12 @@ public class SecurityConfig {
                     .requestMatchers("/api/messages")
                     .authenticated()
                     .and()
-                    .formLogin().permitAll()
+                    .formLogin()
+                    .permitAll()
                     .and()
-                    .logout().logoutUrl("/logout")
-                    .and()
-                    .httpBasic();
+                    .logout()
+                    .permitAll();
+
 
         } catch (Exception e) {
             throw new RuntimeException(e);
