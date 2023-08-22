@@ -47,7 +47,7 @@ public class SocialMediaController {
         return socialMediaService.createPost(createPostDTO, files);
     }
 
-    // Получение всех постов по ID пользователя
+    // Получение всех постов пользователя по его ID
     @Operation(summary = "Получить пост пользователя", description = "Пользователи могут просматривать посты других пользователей.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Запрос успешно выполнен"),

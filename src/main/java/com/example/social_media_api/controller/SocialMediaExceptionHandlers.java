@@ -6,6 +6,7 @@ import com.example.social_media_api.exception.UsersAreNotFriendsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -54,6 +55,13 @@ public class SocialMediaExceptionHandlers{
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body("Данные вводятся в неверном формате: " + ex.getMessage());
+    }
+
+    @ExceptionHandler(value = {InternalAuthenticationServiceException.class})
+    public ResponseEntity<String> handleInternalAuthenticationServiceException(InternalAuthenticationServiceException ex) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Ошибка аутентификации: " + ex.getMessage());
     }
 
 }

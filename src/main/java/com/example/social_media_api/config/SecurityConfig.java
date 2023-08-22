@@ -42,11 +42,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .addFilterAt(new JwtCsrfFilter(jwtTokenRepository), CsrfFilter.class)
                 .authorizeHttpRequests(this::customizeRequest)
                 .csrf()
                 .ignoringRequestMatchers("/api/users")
-                .ignoringRequestMatchers("/login");
+                .ignoringRequestMatchers("/login")
+                .and()
+                .addFilterAt(new JwtCsrfFilter(jwtTokenRepository), CsrfFilter.class);
+
 
         return http.build();
     }
