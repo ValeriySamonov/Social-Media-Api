@@ -4,6 +4,7 @@ import com.example.social_media_api.dto.friendship.FriendshipDTO;
 import com.example.social_media_api.dto.post.CreatePostDTO;
 import com.example.social_media_api.dto.post.PostDTO;
 import com.example.social_media_api.dto.post.UpdatePostDTO;
+import com.example.social_media_api.security.SocialMediaUserDetails;
 import com.example.social_media_api.service.social.SocialMediaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -40,7 +41,10 @@ public class SocialMediaController {
             @ModelAttribute("createPostDTO") CreatePostDTO createPostDTO,
             @RequestParam(name = "files", required = false) List<MultipartFile> files) {
 
-        return socialMediaService.createPost(authentication, createPostDTO, files);
+        SocialMediaUserDetails socialMediaUserDetails = (SocialMediaUserDetails) authentication.getPrincipal();
+        createPostDTO.setCreatorId(socialMediaUserDetails.getUser().getId());
+
+        return socialMediaService.createPost(createPostDTO, files);
     }
 
     // Получение всех постов по ID пользователя
@@ -49,11 +53,11 @@ public class SocialMediaController {
             @ApiResponse(responseCode = "200", description = "Запрос успешно выполнен"),
             @ApiResponse(responseCode = "404", description = "Пользователь не существует")
     })
-    @GetMapping("/posts/{userId}")
-    public ResponseEntity<Page<PostDTO>> getPostByUserId(Authentication authentication,
-                                                         @Parameter(description = "User ID") @PathVariable Long userId,
+    @GetMapping("/posts/{postOwnerId}")
+    public ResponseEntity<Page<PostDTO>> getPostByUserId(@Parameter(description = "ID автора поста") @PathVariable Long postOwnerId,
                                                          @Parameter(description = "Номер страницы") @RequestParam(value = "page", required = false, defaultValue = "0") int page) {
-        return ResponseEntity.ok(socialMediaService.getPostByUserId(authentication, userId, page));
+
+        return ResponseEntity.ok(socialMediaService.getPostByUserId(postOwnerId, page));
     }
 
     // Обновление поста
@@ -69,8 +73,11 @@ public class SocialMediaController {
             @ModelAttribute UpdatePostDTO updatePostDTO,
             @RequestParam(name = "addedFiles", required = false) List<MultipartFile> addedFiles) {
 
+        SocialMediaUserDetails socialMediaUserDetails = (SocialMediaUserDetails) authentication.getPrincipal();
+        updatePostDTO.setUserId(socialMediaUserDetails.getUser().getId());
+
         try {
-            socialMediaService.updatePost(authentication, postId, updatePostDTO, addedFiles);
+            socialMediaService.updatePost(postId, updatePostDTO, addedFiles);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -85,10 +92,12 @@ public class SocialMediaController {
     @DeleteMapping("/posts")
     public void deletePost(
             Authentication authentication,
-            @Parameter(description = "ID пользователя") @RequestParam Long userId,
             @Parameter(description = "ID поста для удаления") @RequestParam Long postId) {
 
-        socialMediaService.deletePost(authentication, userId, postId);
+        SocialMediaUserDetails socialMediaUserDetails = (SocialMediaUserDetails) authentication.getPrincipal();
+        Long userId = socialMediaUserDetails.getUser().getId();
+
+        socialMediaService.deletePost(userId, postId);
     }
 
 
@@ -104,7 +113,10 @@ public class SocialMediaController {
             Authentication authentication,
             @RequestBody FriendshipDTO friendshipDTO) {
 
-        socialMediaService.sendFriendshipRequest(authentication, friendshipDTO);
+        SocialMediaUserDetails socialMediaUserDetails = (SocialMediaUserDetails) authentication.getPrincipal();
+        friendshipDTO.setUserId(socialMediaUserDetails.getUser().getId());
+
+        socialMediaService.sendFriendshipRequest(friendshipDTO);
     }
 
     // Принятие запроса на подписку (подтверждение дружбы)
@@ -119,7 +131,10 @@ public class SocialMediaController {
             Authentication authentication,
             @RequestBody FriendshipDTO friendshipDTO) {
 
-        socialMediaService.acceptFriendshipRequest(authentication, friendshipDTO);
+        SocialMediaUserDetails socialMediaUserDetails = (SocialMediaUserDetails) authentication.getPrincipal();
+        friendshipDTO.setUserId(socialMediaUserDetails.getUser().getId());
+
+        socialMediaService.acceptFriendshipRequest(friendshipDTO);
     }
 
     // Отклонение запроса на подписку/Удаление друга (отклонение дружбы/отписка)
@@ -134,7 +149,10 @@ public class SocialMediaController {
             Authentication authentication,
             @RequestBody FriendshipDTO friendshipDTO) {
 
-        socialMediaService.declineFriendshipRequest(authentication, friendshipDTO);
+        SocialMediaUserDetails socialMediaUserDetails = (SocialMediaUserDetails) authentication.getPrincipal();
+        friendshipDTO.setUserId(socialMediaUserDetails.getUser().getId());
+
+        socialMediaService.declineFriendshipRequest(friendshipDTO);
     }
 
     // Удаление друга (отписка)
@@ -149,7 +167,10 @@ public class SocialMediaController {
             Authentication authentication,
             @RequestBody FriendshipDTO friendshipDTO) {
 
-        socialMediaService.removeFriend(authentication, friendshipDTO);
+        SocialMediaUserDetails socialMediaUserDetails = (SocialMediaUserDetails) authentication.getPrincipal();
+        friendshipDTO.setUserId(socialMediaUserDetails.getUser().getId());
+
+        socialMediaService.removeFriend(friendshipDTO);
     }
 
     //Лента активности
@@ -159,12 +180,15 @@ public class SocialMediaController {
             @ApiResponse(responseCode = "200", description = "Запрос успешно выполнен"),
             @ApiResponse(responseCode = "404", description = "Пользователь не существует")
     })
-    @GetMapping("/activity-feed/{userId}")
+    @GetMapping("/activity-feed")
     public ResponseEntity<Page<PostDTO>> getUserActivityFeed(
             Authentication authentication,
-            @Parameter(description = "User ID") @PathVariable Long userId,
             @Parameter(description = "Номер страницы") @RequestParam(value = "page", required = false, defaultValue = "0") int page) {
-        Page<PostDTO> activityFeed = socialMediaService.getUserActivityFeed(authentication, userId, page);
+
+        SocialMediaUserDetails socialMediaUserDetails = (SocialMediaUserDetails) authentication.getPrincipal();
+        Long userId = socialMediaUserDetails.getUser().getId();
+
+        Page<PostDTO> activityFeed = socialMediaService.getUserActivityFeed(userId, page);
         return ResponseEntity.ok(activityFeed);
     }
 

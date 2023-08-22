@@ -159,11 +159,9 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
     @SneakyThrows
     public void deletePostTest() {
 
-        Long userId = 1L;
         Long postId = 1L;
 
         mockMvc.perform(delete("/api/posts").with(csrf())
-                        .param("userId", String.valueOf(userId))
                         .param("postId", String.valueOf(postId))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -261,10 +259,9 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
     @SneakyThrows
     public void getUserActivityFeedTest() {
 
-        long userId = 1L;
         int page = 0;
 
-        mockMvc.perform(get("/api/activity-feed/" + userId + "?page=" + page))
+        mockMvc.perform(get("/api/activity-feed" + "?page=" + page))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isNotEmpty());

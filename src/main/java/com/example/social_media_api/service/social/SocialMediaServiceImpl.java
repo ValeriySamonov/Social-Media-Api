@@ -19,7 +19,6 @@ import com.example.social_media_api.utilities.ImageFileAction;
 import com.example.social_media_api.utilities.mapper.MapEntityToDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,9 +44,7 @@ public class SocialMediaServiceImpl implements SocialMediaService{
     private final SubscriptionRepository subscriptionRepository;
 
     @Override
-    public Long createPost(Authentication authentication, CreatePostDTO createPostDTO, List<MultipartFile> files) {
-
-        System.out.println(authentication.getName());
+    public Long createPost(CreatePostDTO createPostDTO, List<MultipartFile> files) {
 
         User user = userRepository.findById(createPostDTO.getCreatorId()).orElseThrow(UserNotFoundException::new);
         Post post = new Post();
@@ -64,8 +61,8 @@ public class SocialMediaServiceImpl implements SocialMediaService{
     }
 
     @Override
-    public Page<PostDTO> getPostByUserId(Authentication authentication, Long userId, int page) {
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+    public Page<PostDTO> getPostByUserId(Long postOwnerId, int page) {
+        User user = userRepository.findById(postOwnerId).orElseThrow(UserNotFoundException::new);
 
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("createdAt").descending());
 
@@ -76,7 +73,7 @@ public class SocialMediaServiceImpl implements SocialMediaService{
     }
 
     @Override
-    public void updatePost(Authentication authentication, Long postId, UpdatePostDTO updatePostDTO, List<MultipartFile> addedFiles) {
+    public void updatePost(Long postId, UpdatePostDTO updatePostDTO, List<MultipartFile> addedFiles) {
         User user = userRepository.findById(updatePostDTO.getUserId()).orElseThrow(UserNotFoundException::new);
         Post post = postRepository.findByUserIdAndId(user.getId(), postId);
 
@@ -105,7 +102,7 @@ public class SocialMediaServiceImpl implements SocialMediaService{
     }
 
     @Override
-    public void deletePost(Authentication authentication, Long userId, Long postId) {
+    public void deletePost(Long userId, Long postId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         try {
             Post post = postRepository.findByUserIdAndId(user.getId(), postId);
@@ -123,7 +120,7 @@ public class SocialMediaServiceImpl implements SocialMediaService{
     }
 
     @Override
-    public void sendFriendshipRequest(Authentication authentication, FriendshipDTO friendshipDTO) {
+    public void sendFriendshipRequest(FriendshipDTO friendshipDTO) {
         User subscriber = userRepository.findById(friendshipDTO.getUserId()).orElseThrow(UserNotFoundException::new); // Получите текущего пользователя (подписчика)
         User targetUser = userRepository.findById(friendshipDTO.getTargetUserId()).orElseThrow(UserNotFoundException::new);
 
@@ -144,7 +141,7 @@ public class SocialMediaServiceImpl implements SocialMediaService{
     }
 
     @Override
-    public void acceptFriendshipRequest(Authentication authentication, FriendshipDTO friendshipDTO) {
+    public void acceptFriendshipRequest(FriendshipDTO friendshipDTO) {
 
         Subscription subscription = subscriptionRepository.findBySubscriberIdAndTargetUserIdAndFriendStatus(
                 friendshipDTO.getTargetUserId(), friendshipDTO.getUserId(), FriendStatus.UNACCEPTED);
@@ -162,7 +159,7 @@ public class SocialMediaServiceImpl implements SocialMediaService{
 
 
     @Override
-    public void declineFriendshipRequest(Authentication authentication, FriendshipDTO friendshipDTO) {
+    public void declineFriendshipRequest(FriendshipDTO friendshipDTO) {
 
         Subscription subscription = subscriptionRepository.findBySubscriberIdAndTargetUserIdAndFriendStatus(
                 friendshipDTO.getTargetUserId(), friendshipDTO.getUserId(), FriendStatus.UNACCEPTED);
@@ -177,7 +174,7 @@ public class SocialMediaServiceImpl implements SocialMediaService{
     }
 
     @Override
-    public void removeFriend(Authentication authentication, FriendshipDTO friendshipDTO) {
+    public void removeFriend(FriendshipDTO friendshipDTO) {
 
         Subscription subscription = subscriptionRepository.findSubscriptionsWithFriendStatus(
                 friendshipDTO.getUserId(), friendshipDTO.getTargetUserId(), FriendStatus.ACCEPTED);
@@ -200,7 +197,8 @@ public class SocialMediaServiceImpl implements SocialMediaService{
     }
 
     @Override
-    public Page<PostDTO> getUserActivityFeed(Authentication authentication, Long userId, int page) {
+    public Page<PostDTO> getUserActivityFeed(Long userId, int page) {
+
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("createdAt").descending());
 
         List<Subscription> subscriptions = subscriptionRepository.findBySubscriberIdAndSubscriptionStatusIn(userId, SubStatus.USER1, SubStatus.BOTH);

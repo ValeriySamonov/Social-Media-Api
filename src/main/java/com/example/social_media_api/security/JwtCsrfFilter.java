@@ -1,6 +1,5 @@
 package com.example.social_media_api.security;
 
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,7 +31,7 @@ public class JwtCsrfFilter extends OncePerRequestFilter {
         request.setAttribute(CsrfToken.class.getName(), csrfToken);
         request.setAttribute(csrfToken.getParameterName(), csrfToken);
 
-        response.setHeader(csrfToken.getHeaderName(), csrfToken.getToken());
+        //response.setHeader(csrfToken.getHeaderName(), csrfToken.getToken());
         filterChain.doFilter(request, response);
     }
 }

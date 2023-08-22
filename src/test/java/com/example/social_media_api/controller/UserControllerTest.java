@@ -49,7 +49,7 @@ public class UserControllerTest extends BaseIntegrationContainer {
 
         String jsonCreateUser = new ObjectMapper().writeValueAsString(createUserDTO);
 
-        mockMvc.perform(post("/users")
+        mockMvc.perform(post("/api/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonCreateUser))
                 .andExpect(status().isOk());
@@ -72,7 +72,7 @@ public class UserControllerTest extends BaseIntegrationContainer {
         jsonCreateUser.put("passwordHash", "password1");
         jsonCreateUser.put("email", "email");
 
-        mockMvc.perform(post("/users")
+        mockMvc.perform(post("/api/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonCreateUser.toString()))
                 .andExpect(status().isConflict());
