@@ -30,8 +30,10 @@ public class MessageController {
     })
     @PostMapping
     public void sendMessage(Authentication authentication, @RequestBody MessageDTO messageDTO) {
+
         SocialMediaUserDetails socialMediaUserDetails = (SocialMediaUserDetails) authentication.getPrincipal();
         messageDTO.setSenderId(socialMediaUserDetails.getUser().getId());
+
         messageService.sendMessage(messageDTO);
     }
 

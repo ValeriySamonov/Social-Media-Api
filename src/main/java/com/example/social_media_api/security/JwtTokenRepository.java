@@ -7,6 +7,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
@@ -24,16 +25,20 @@ import static org.springframework.http.HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS
 @Repository
 public class JwtTokenRepository implements CsrfTokenRepository {
 
-    private final String secret;
 
-    public JwtTokenRepository() {
-        this.secret = "SUPER_SECRET_KEY";
+    private final String secret;
+    private final Long sessionTime;
+
+    public JwtTokenRepository(@Value("${jwt.secret}") String secret, @Value("${jwt.sessionTime}") Long sessionTime) {
+        this.secret = secret;
+        this.sessionTime = sessionTime;
     }
+
     @Override
     public CsrfToken generateToken(HttpServletRequest httpServletRequest) {
         String id = UUID.randomUUID().toString().replace("-", "");
         Date now = new Date();
-        Date exp = Date.from(LocalDateTime.now().plusMinutes(30)
+        Date exp = Date.from(LocalDateTime.now().plusMinutes(sessionTime)
                 .atZone(ZoneId.systemDefault()).toInstant());
 
         String token = "";
