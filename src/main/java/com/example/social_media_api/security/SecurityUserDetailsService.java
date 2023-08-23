@@ -3,12 +3,14 @@ package com.example.social_media_api.security;
 import com.example.social_media_api.exception.UserNotFoundException;
 import com.example.social_media_api.model.User;
 import com.example.social_media_api.repository.UserRepository;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 @Service
+@Getter
 @RequiredArgsConstructor
 public class SecurityUserDetailsService implements UserDetailsService {
 
@@ -21,4 +23,5 @@ public class SecurityUserDetailsService implements UserDetailsService {
 
         return new SecurityUserPrincipal(user);
     }
+
 }
