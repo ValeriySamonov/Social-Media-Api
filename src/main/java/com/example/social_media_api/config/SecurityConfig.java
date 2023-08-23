@@ -2,12 +2,10 @@ package com.example.social_media_api.config;
 
 import com.example.social_media_api.security.JwtCsrfFilter;
 import com.example.social_media_api.security.JwtTokenRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
@@ -20,14 +18,12 @@ import org.springframework.security.web.csrf.CsrfFilter;
 
 @Configuration
 @EnableWebSecurity
-//@RequiredArgsConstructor
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Autowired
-    private UserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
 
-    @Autowired
-    private JwtTokenRepository jwtTokenRepository;
+    private final JwtTokenRepository jwtTokenRepository;
 
 
     @Bean
@@ -46,11 +42,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                //.addFilterAt(new JwtCsrfFilter(jwtTokenRepository), CsrfFilter.class)
-                .csrf().disable()
-                //.ignoringRequestMatchers("/api/users")
-                //.ignoringRequestMatchers("/login")
-               // .and()
+                .addFilterAt(new JwtCsrfFilter(jwtTokenRepository), CsrfFilter.class)
+                .csrf()
+                .ignoringRequestMatchers("/api/users")
+                .ignoringRequestMatchers("/login")
+                .and()
                 .authorizeHttpRequests(this::customizeRequest);
 
         return http.build();

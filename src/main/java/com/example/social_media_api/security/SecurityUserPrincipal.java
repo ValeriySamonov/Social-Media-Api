@@ -1,9 +1,8 @@
 package com.example.social_media_api.security;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
 import com.example.social_media_api.model.User;
+import lombok.Getter;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
