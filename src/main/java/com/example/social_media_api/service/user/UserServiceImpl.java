@@ -1,12 +1,15 @@
 package com.example.social_media_api.service.user;
 
 import com.example.social_media_api.dto.user.CreateUserDTO;
+import com.example.social_media_api.enums.Role;
 import com.example.social_media_api.exception.UserAlreadyExistsException;
 import com.example.social_media_api.model.User;
 import com.example.social_media_api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+
+import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +29,7 @@ public class UserServiceImpl implements UserService{
 
         User user = modelMapper.map(createUserDTO, User.class);
         user.setPassword(createUserDTO.getPassword());
+        user.setRoles(Collections.singleton(Role.USER));
         userRepository.save(user);
         return user.getId();
     }

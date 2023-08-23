@@ -23,7 +23,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -40,7 +39,7 @@ public class MessageControllerTest extends BaseIntegrationContainer {
     MessageRepository messageRepository;
 
     @Autowired
-    private GetAuthentication getAuthentication;
+    GetAuthentication getAuthentication;
 
     @BeforeEach
     void prepareForTest() {
@@ -59,7 +58,7 @@ public class MessageControllerTest extends BaseIntegrationContainer {
 
         String jsonMessage = new ObjectMapper().writeValueAsString(messageDTO);
 
-        mockMvc.perform(post("/api/messages").with(csrf())
+        mockMvc.perform(post("/api/messages")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonMessage))
                 .andExpect(status().isOk());

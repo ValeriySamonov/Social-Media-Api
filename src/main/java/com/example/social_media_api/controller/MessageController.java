@@ -22,7 +22,7 @@ public class MessageController {
 
     private final MessageService messageService;
 
-    @Operation(summary = "Отправить сообщение", description = "Друзья могут писать друг другу сообщения ")
+    @Operation(summary = "Отправить сообщение", description = "Друзья могут писать друг другу сообщения")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Сообщение успешно отправлено"),
             @ApiResponse(responseCode = "400", description = "Вы не можете подписаться на себя/писать себе"),

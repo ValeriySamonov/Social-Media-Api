@@ -1,7 +1,6 @@
 package com.example.social_media_api.config;
 
-import com.example.social_media_api.security.JwtCsrfFilter;
-import com.example.social_media_api.security.JwtTokenRepository;
+import com.example.social_media_api.jwt.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,7 +12,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 
 @Configuration
@@ -23,7 +22,7 @@ public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
 
-    private final JwtTokenRepository jwtTokenRepository;
+    private final JwtFilter jwtFilter;
 
 
     @Bean
@@ -41,37 +40,24 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .addFilterAt(new JwtCsrfFilter(jwtTokenRepository), CsrfFilter.class)
-                .csrf()
-                .ignoringRequestMatchers("/api/users")
-                .ignoringRequestMatchers("/login")
-                .and()
-                .authorizeHttpRequests(this::customizeRequest);
-
-        return http.build();
+        return http
+                .csrf().disable()
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .authorizeHttpRequests(this::customizeRequest)
+                .build();
     }
 
     protected void customizeRequest(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry) {
         try {
             registry
-                    .requestMatchers("/v2/api-docs", "/swagger-ui.html", "/swagger-resources/**", "/webjars/**").permitAll()
-                    .requestMatchers("/api/users")
+                    .requestMatchers("/api/auth/login", "/api/auth/token", "/api/users/**")
                     .permitAll()
-                    .requestMatchers("/api/posts/**")
-                    .authenticated()
-                    .requestMatchers("/api/friendship/**")
-                    .authenticated()
-                    .requestMatchers("/api/activity-feed")
-                    .authenticated()
-                    .requestMatchers("/api/messages")
+                    .anyRequest()
                     .authenticated()
                     .and()
                     .formLogin()
-                    .permitAll()
-                    .and()
-                    .logout()
-                    .permitAll();
+                    .disable();
+
 
 
         } catch (Exception e) {
