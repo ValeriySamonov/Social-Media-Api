@@ -4,7 +4,7 @@ import com.example.social_media_api.dto.friendship.FriendshipDTO;
 import com.example.social_media_api.dto.post.CreatePostDTO;
 import com.example.social_media_api.dto.post.PostDTO;
 import com.example.social_media_api.dto.post.UpdatePostDTO;
-import com.example.social_media_api.security.SocialMediaUserDetails;
+import com.example.social_media_api.security.SecurityUserPrincipal;
 import com.example.social_media_api.service.social.SocialMediaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -41,8 +41,8 @@ public class SocialMediaController {
             @ModelAttribute("createPostDTO") CreatePostDTO createPostDTO,
             @RequestParam(name = "files", required = false) List<MultipartFile> files) {
 
-        SocialMediaUserDetails socialMediaUserDetails = (SocialMediaUserDetails) authentication.getPrincipal();
-        createPostDTO.setCreatorId(socialMediaUserDetails.getUser().getId());
+        SecurityUserPrincipal securityUserPrincipal = (SecurityUserPrincipal) authentication.getPrincipal();
+        createPostDTO.setCreatorId(securityUserPrincipal.getUser().getId());
 
         return socialMediaService.createPost(createPostDTO, files);
     }
@@ -73,8 +73,8 @@ public class SocialMediaController {
             @ModelAttribute UpdatePostDTO updatePostDTO,
             @RequestParam(name = "addedFiles", required = false) List<MultipartFile> addedFiles) {
 
-        SocialMediaUserDetails socialMediaUserDetails = (SocialMediaUserDetails) authentication.getPrincipal();
-        updatePostDTO.setUserId(socialMediaUserDetails.getUser().getId());
+        SecurityUserPrincipal securityUserPrincipal = (SecurityUserPrincipal) authentication.getPrincipal();
+        updatePostDTO.setUserId(securityUserPrincipal.getUser().getId());
 
         try {
             socialMediaService.updatePost(postId, updatePostDTO, addedFiles);
@@ -94,8 +94,8 @@ public class SocialMediaController {
             Authentication authentication,
             @Parameter(description = "ID поста для удаления") @RequestParam Long postId) {
 
-        SocialMediaUserDetails socialMediaUserDetails = (SocialMediaUserDetails) authentication.getPrincipal();
-        Long userId = socialMediaUserDetails.getUser().getId();
+        SecurityUserPrincipal securityUserPrincipal = (SecurityUserPrincipal) authentication.getPrincipal();
+        Long userId = securityUserPrincipal.getUser().getId();
 
         socialMediaService.deletePost(userId, postId);
     }
@@ -113,8 +113,8 @@ public class SocialMediaController {
             Authentication authentication,
             @RequestBody FriendshipDTO friendshipDTO) {
 
-        SocialMediaUserDetails socialMediaUserDetails = (SocialMediaUserDetails) authentication.getPrincipal();
-        friendshipDTO.setUserId(socialMediaUserDetails.getUser().getId());
+        SecurityUserPrincipal securityUserPrincipal = (SecurityUserPrincipal) authentication.getPrincipal();
+        friendshipDTO.setUserId(securityUserPrincipal.getUser().getId());
 
         socialMediaService.sendFriendshipRequest(friendshipDTO);
     }
@@ -131,8 +131,8 @@ public class SocialMediaController {
             Authentication authentication,
             @RequestBody FriendshipDTO friendshipDTO) {
 
-        SocialMediaUserDetails socialMediaUserDetails = (SocialMediaUserDetails) authentication.getPrincipal();
-        friendshipDTO.setUserId(socialMediaUserDetails.getUser().getId());
+        SecurityUserPrincipal securityUserPrincipal = (SecurityUserPrincipal) authentication.getPrincipal();
+        friendshipDTO.setUserId(securityUserPrincipal.getUser().getId());
 
         socialMediaService.acceptFriendshipRequest(friendshipDTO);
     }
@@ -149,8 +149,8 @@ public class SocialMediaController {
             Authentication authentication,
             @RequestBody FriendshipDTO friendshipDTO) {
 
-        SocialMediaUserDetails socialMediaUserDetails = (SocialMediaUserDetails) authentication.getPrincipal();
-        friendshipDTO.setUserId(socialMediaUserDetails.getUser().getId());
+        SecurityUserPrincipal securityUserPrincipal = (SecurityUserPrincipal) authentication.getPrincipal();
+        friendshipDTO.setUserId(securityUserPrincipal.getUser().getId());
 
         socialMediaService.declineFriendshipRequest(friendshipDTO);
     }
@@ -167,8 +167,8 @@ public class SocialMediaController {
             Authentication authentication,
             @RequestBody FriendshipDTO friendshipDTO) {
 
-        SocialMediaUserDetails socialMediaUserDetails = (SocialMediaUserDetails) authentication.getPrincipal();
-        friendshipDTO.setUserId(socialMediaUserDetails.getUser().getId());
+        SecurityUserPrincipal securityUserPrincipal = (SecurityUserPrincipal) authentication.getPrincipal();
+        friendshipDTO.setUserId(securityUserPrincipal.getUser().getId());
 
         socialMediaService.removeFriend(friendshipDTO);
     }
@@ -185,8 +185,8 @@ public class SocialMediaController {
             Authentication authentication,
             @Parameter(description = "Номер страницы") @RequestParam(value = "page", required = false, defaultValue = "0") int page) {
 
-        SocialMediaUserDetails socialMediaUserDetails = (SocialMediaUserDetails) authentication.getPrincipal();
-        Long userId = socialMediaUserDetails.getUser().getId();
+        SecurityUserPrincipal securityUserPrincipal = (SecurityUserPrincipal) authentication.getPrincipal();
+        Long userId = securityUserPrincipal.getUser().getId();
 
         Page<PostDTO> activityFeed = socialMediaService.getUserActivityFeed(userId, page);
         return ResponseEntity.ok(activityFeed);

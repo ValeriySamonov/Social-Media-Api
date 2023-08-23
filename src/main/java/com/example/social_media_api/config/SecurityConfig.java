@@ -42,20 +42,21 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(this::customizeRequest)
+                .addFilterAt(new JwtCsrfFilter(jwtTokenRepository), CsrfFilter.class)
                 .csrf()
                 .ignoringRequestMatchers("/api/users")
                 .ignoringRequestMatchers("/login")
                 .and()
-                .addFilterAt(new JwtCsrfFilter(jwtTokenRepository), CsrfFilter.class);
-
+                .authorizeHttpRequests(this::customizeRequest);
 
         return http.build();
     }
 
     protected void customizeRequest(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry) {
         try {
-            registry.requestMatchers("/api/users")
+            registry
+                    .requestMatchers("/v2/api-docs", "/swagger-ui.html", "/swagger-resources/**", "/webjars/**").permitAll()
+                    .requestMatchers("/api/users")
                     .permitAll()
                     .requestMatchers("/api/posts/**")
                     .authenticated()
@@ -66,11 +67,12 @@ public class SecurityConfig {
                     .requestMatchers("/api/messages")
                     .authenticated()
                     .and()
-                    .formLogin().permitAll()
+                    .formLogin()
+                    .permitAll()
                     .and()
-                    .logout().logoutUrl("/logout")
-                    .and()
-                    .httpBasic();
+                    .logout()
+                    .permitAll();
+
 
         } catch (Exception e) {
             throw new RuntimeException(e);
