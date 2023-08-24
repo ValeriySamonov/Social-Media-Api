@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = SocialMediaApiApplication.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
-@Sql(scripts = "/sql/data-test.sql") // Путь к скрипту с тестовыми данными
+@Sql(scripts = "/sql/data-test-auth.sql") // Путь к скрипту с тестовыми данными
 public class AuthControllerTest extends BaseIntegrationContainer {
 
 
@@ -43,7 +43,8 @@ public class AuthControllerTest extends BaseIntegrationContainer {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonAuthRequest))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accessToken").exists());
+                .andExpect(jsonPath("$.accessToken").exists())
+                .andExpect(jsonPath("$.refreshToken").exists());
     }
 
 }
