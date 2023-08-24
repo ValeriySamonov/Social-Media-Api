@@ -8,7 +8,7 @@ import com.example.social_media_api.exception.UserNotFoundException;
 import com.example.social_media_api.jwt.JwtAuthentication;
 import com.example.social_media_api.repository.UserRepository;
 import com.example.social_media_api.service.social.SocialMediaService;
-import com.example.social_media_api.service.user.AuthService;
+import com.example.social_media_api.service.auth.AuthServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -30,7 +30,7 @@ import java.util.List;
 public class SocialMediaController {
 
     private final SocialMediaService socialMediaService;
-    private final AuthService authService;
+    private final AuthServiceImpl authServiceImpl;
     private final UserRepository userRepository;
 
     // Создание поста
@@ -44,10 +44,10 @@ public class SocialMediaController {
             @ModelAttribute("createPostDTO") CreatePostDTO createPostDTO,
             @RequestParam(name = "files", required = false) List<MultipartFile> files) {
 
-        JwtAuthentication authInfo = authService.getAuthInfo();
+        JwtAuthentication authInfo = authServiceImpl.getAuthInfo();
         Long userId = userRepository.findByUsername((String) authInfo.getPrincipal()).orElseThrow(UserNotFoundException::new).getId();
 
-        createPostDTO.setCreatorId(userId);
+        createPostDTO.setUserId(userId);
 
         return socialMediaService.createPost(createPostDTO, files);
     }
@@ -77,7 +77,7 @@ public class SocialMediaController {
             @ModelAttribute UpdatePostDTO updatePostDTO,
             @RequestParam(name = "addedFiles", required = false) List<MultipartFile> addedFiles) {
 
-        JwtAuthentication authInfo = authService.getAuthInfo();
+        JwtAuthentication authInfo = authServiceImpl.getAuthInfo();
         Long userId = userRepository.findByUsername((String) authInfo.getPrincipal()).orElseThrow(UserNotFoundException::new).getId();
 
         updatePostDTO.setUserId(userId);
@@ -99,7 +99,7 @@ public class SocialMediaController {
     public void deletePost(
             @Parameter(description = "ID поста для удаления") @RequestParam Long postId) {
 
-        JwtAuthentication authInfo = authService.getAuthInfo();
+        JwtAuthentication authInfo = authServiceImpl.getAuthInfo();
         Long userId = userRepository.findByUsername((String) authInfo.getPrincipal()).orElseThrow(UserNotFoundException::new).getId();
 
         socialMediaService.deletePost(userId, postId);
@@ -117,7 +117,7 @@ public class SocialMediaController {
     public void sendFriendshipRequest(
             @RequestBody FriendshipDTO friendshipDTO) {
 
-        JwtAuthentication authInfo = authService.getAuthInfo();
+        JwtAuthentication authInfo = authServiceImpl.getAuthInfo();
         Long userId = userRepository.findByUsername((String) authInfo.getPrincipal()).orElseThrow(UserNotFoundException::new).getId();
 
         friendshipDTO.setUserId(userId);
@@ -132,11 +132,11 @@ public class SocialMediaController {
             @ApiResponse(responseCode = "200", description = "Запрос на дружбу принят"),
             @ApiResponse(responseCode = "404", description = "Пользователь не существует")
     })
-    @PostMapping("/friendship/accept")
+    @PatchMapping("/friendship/accept")
     public void acceptFriendshipRequest(
             @RequestBody FriendshipDTO friendshipDTO) {
 
-        JwtAuthentication authInfo = authService.getAuthInfo();
+        JwtAuthentication authInfo = authServiceImpl.getAuthInfo();
         Long userId = userRepository.findByUsername((String) authInfo.getPrincipal()).orElseThrow(UserNotFoundException::new).getId();
 
         friendshipDTO.setUserId(userId);
@@ -151,11 +151,11 @@ public class SocialMediaController {
             @ApiResponse(responseCode = "200", description = "Запрос на дружбу отклонен"),
             @ApiResponse(responseCode = "404", description = "Пользователь не существует")
     })
-    @PostMapping("/friendship/reject")
+    @PatchMapping("/friendship/reject")
     public void declineFriendshipRequest(
             @RequestBody FriendshipDTO friendshipDTO) {
 
-        JwtAuthentication authInfo = authService.getAuthInfo();
+        JwtAuthentication authInfo = authServiceImpl.getAuthInfo();
         Long userId = userRepository.findByUsername((String) authInfo.getPrincipal()).orElseThrow(UserNotFoundException::new).getId();
 
         friendshipDTO.setUserId(userId);
@@ -170,11 +170,11 @@ public class SocialMediaController {
             @ApiResponse(responseCode = "200", description = "Вы больше не друзья/подписка отменена"),
             @ApiResponse(responseCode = "404", description = "Пользователь не существует")
     })
-    @PostMapping("/friendship/unfriend")
+    @PatchMapping("/friendship/unfriend")
     public void removeFriend(
             @RequestBody FriendshipDTO friendshipDTO) {
 
-        JwtAuthentication authInfo = authService.getAuthInfo();
+        JwtAuthentication authInfo = authServiceImpl.getAuthInfo();
         Long userId = userRepository.findByUsername((String) authInfo.getPrincipal()).orElseThrow(UserNotFoundException::new).getId();
 
         friendshipDTO.setUserId(userId);
@@ -193,7 +193,7 @@ public class SocialMediaController {
     public ResponseEntity<Page<PostDTO>> getUserActivityFeed(
             @Parameter(description = "Номер страницы") @RequestParam(value = "page", required = false, defaultValue = "0") int page) {
 
-        JwtAuthentication authInfo = authService.getAuthInfo();
+        JwtAuthentication authInfo = authServiceImpl.getAuthInfo();
         Long userId = userRepository.findByUsername((String) authInfo.getPrincipal()).orElseThrow(UserNotFoundException::new).getId();
 
         Page<PostDTO> activityFeed = socialMediaService.getUserActivityFeed(userId, page);

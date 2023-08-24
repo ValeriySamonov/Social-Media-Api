@@ -10,6 +10,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 public abstract  class BaseIntegrationContainer {
     @Container
     private static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:latest")
+            .withDatabaseName("social")
             .withUsername("postgres")
             .withPassword("hyantiv4");
 

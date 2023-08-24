@@ -1,4 +1,4 @@
-package com.example.social_media_api.service.user;
+package com.example.social_media_api.service.auth;
 
 import com.example.social_media_api.jwt.JwtAuthentication;
 import com.example.social_media_api.jwt.JwtProvider;
@@ -18,7 +18,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService {
+public class AuthServiceImpl implements AuthService {
 
     private final SecurityUserDetailsService userService;
     private final Map<String, String> refreshStorage = new HashMap<>();

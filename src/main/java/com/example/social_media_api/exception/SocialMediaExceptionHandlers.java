@@ -1,8 +1,5 @@
-package com.example.social_media_api.controller;
+package com.example.social_media_api.exception;
 
-import com.example.social_media_api.exception.UserAlreadyExistsException;
-import com.example.social_media_api.exception.UserNotFoundException;
-import com.example.social_media_api.exception.UsersAreNotFriendsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,13 +17,6 @@ public class SocialMediaExceptionHandlers{
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body("Пользователь не существует: " + ex.getMessage());
-    }
-
-    @ExceptionHandler(value = {NullPointerException.class})
-    public ResponseEntity<String> handleNullPointerException(NullPointerException ex) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body("Подписка/друг не существует: " + ex.getMessage());
     }
 
     @ExceptionHandler(value = {IllegalArgumentException.class})
@@ -62,6 +52,13 @@ public class SocialMediaExceptionHandlers{
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Ошибка аутентификации: " + ex.getMessage());
+    }
+
+    @ExceptionHandler(value = {SubscriptionDoesNotExistException.class})
+    public ResponseEntity<String> handleSubscriptionDoesNotExist(SubscriptionDoesNotExistException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body("Подписка/друг не существует: " + ex.getMessage());
     }
 
 }

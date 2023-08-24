@@ -76,7 +76,7 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
     public void createPostTest() {
 
         CreatePostDTO createPostDTO = new CreatePostDTO()
-                .setCreatorId(1L)
+                .setUserId(1L)
                 .setTitle("Title")
                 .setText("Text");
 
@@ -195,7 +195,7 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
                 .setUserId(1L)
                 .setTargetUserId(2L);
 
-        mockMvc.perform(post("/api/friendship/accept")
+        mockMvc.perform(patch("/api/friendship/accept")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(friendshipDTO)))
                 .andExpect(status().isOk());
@@ -216,7 +216,7 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
                 .setUserId(1L)
                 .setTargetUserId(2L);
 
-        mockMvc.perform(post("/api/friendship/reject")
+        mockMvc.perform(patch("/api/friendship/reject")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(friendshipDTO)))
                 .andExpect(status().isOk());
@@ -238,7 +238,7 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
                 .setUserId(1L)
                 .setTargetUserId(3L);
 
-        mockMvc.perform(post("/api/friendship/unfriend")
+        mockMvc.perform(patch("/api/friendship/unfriend")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(friendshipDTO)))
                 .andExpect(status().isOk());
