@@ -45,7 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = SocialMediaApiApplication.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
-@Sql(scripts = "/sql/data-test.sql") // Путь к скрипту с тестовыми данными
+@Sql(scripts = "/sql/data-test-social.sql") // Путь к скрипту с тестовыми данными
 public class SocialMediaControllerTest extends BaseIntegrationContainer {
 
     @Autowired

@@ -2,9 +2,10 @@ package com.example.social_media_api.jwt;
 
 
 import lombok.AllArgsConstructor;
-import lombok.Setter;
+import lombok.Getter;
 
-@Setter
+
+@Getter
 @AllArgsConstructor
 public class RefreshJwtRequest {
 

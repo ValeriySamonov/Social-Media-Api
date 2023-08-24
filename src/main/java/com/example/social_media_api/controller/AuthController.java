@@ -23,24 +23,24 @@ public class AuthController {
     private final AuthService authService;
 
     @Operation(summary = "Аутентификация в системе", description = "Введите правильное имя пользователя (логин) и пароль. " +
-            "При корректной аутентификации будет получен access token.")
+            "При корректной аутентификации будет получен access token и refresh token.")
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@RequestBody JwtRequest authRequest) throws AuthException {
         final JwtResponse token = authService.login(authRequest);
         return ResponseEntity.ok(token);
     }
 
-    @Operation(summary = "Новый токен доступа", description = "Получение нового токена")
+    @Operation(summary = "Новый токен доступа", description = "Получение нового access токена")
     @PostMapping("/token")
     public ResponseEntity<JwtResponse> getNewAccessToken(@RequestBody RefreshJwtRequest request) {
-        final JwtResponse token = authService.getAccessToken(request.refreshToken);
+        final JwtResponse token = authService.getAccessToken(request.getRefreshToken());
         return ResponseEntity.ok(token);
     }
 
-    @Operation(summary = "Токен обновления", description = "Получение токена обновления")
+    @Operation(summary = "Новый токен обновления", description = "Получение нового refresh токена")
     @PostMapping("/refresh")
     public ResponseEntity<JwtResponse> getNewRefreshToken(@RequestBody RefreshJwtRequest request) throws AuthException {
-        final JwtResponse token = authService.refresh(request.refreshToken);
+        final JwtResponse token = authService.refresh(request.getRefreshToken());
         return ResponseEntity.ok(token);
     }
 

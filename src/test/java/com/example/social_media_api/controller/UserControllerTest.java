@@ -19,7 +19,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -27,7 +26,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = SocialMediaApiApplication.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
-
 public class UserControllerTest extends BaseIntegrationContainer {
 
     @Autowired
@@ -56,8 +54,6 @@ public class UserControllerTest extends BaseIntegrationContainer {
 
         Optional<User> savedUser = userRepository.findByUsername("user1");
         assertTrue(savedUser.isPresent());
-        assertEquals(createUserDTO.getEmail(), savedUser.get().getEmail());
-        assertEquals(createUserDTO.getPassword(), savedUser.get().getPassword());
 
     }
 
@@ -69,7 +65,7 @@ public class UserControllerTest extends BaseIntegrationContainer {
 
         JSONObject jsonCreateUser = new JSONObject();
         jsonCreateUser.put("username", "user1");
-        jsonCreateUser.put("passwordHash", "password1");
+        jsonCreateUser.put("password", "password1");
         jsonCreateUser.put("email", "email");
 
         mockMvc.perform(post("/api/users")

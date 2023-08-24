@@ -7,6 +7,7 @@ import com.example.social_media_api.model.User;
 import com.example.social_media_api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -17,6 +18,7 @@ public class UserServiceImpl implements UserService{
 
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public Long createUser(CreateUserDTO createUserDTO) {
@@ -28,7 +30,7 @@ public class UserServiceImpl implements UserService{
         }
 
         User user = modelMapper.map(createUserDTO, User.class);
-        user.setPassword(createUserDTO.getPassword());
+        user.setPassword(passwordEncoder.encode(createUserDTO.getPassword()));
         user.setRoles(Collections.singleton(Role.USER));
         userRepository.save(user);
         return user.getId();
