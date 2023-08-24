@@ -1,8 +1,8 @@
 -- Вставка тестовых пользователей
-INSERT INTO users (username, email, password, roles)
-VALUES ('user1', 'user1@example.com', 'password1', '{1}'),
-       ('user2', 'user2@example.com', 'password2', '{1}'),
-       ('user3', 'user3@example.com', 'password3', '{1}');
+INSERT INTO users (username, email, password)
+VALUES ('user1', 'user1@example.com', 'password1'),
+       ('user2', 'user2@example.com', 'password2'),
+       ('user3', 'user3@example.com', 'password3');
 
 INSERT INTO messages (sender_id, receiver_id, content)
 VALUES (1, 2, 'message1'),

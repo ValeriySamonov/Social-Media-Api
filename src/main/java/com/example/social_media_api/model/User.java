@@ -1,14 +1,15 @@
 package com.example.social_media_api.model;
 
-import com.example.social_media_api.enums.Role;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
-
-import java.util.Set;
 
 @Entity
 @Data
+@Getter
 @AllArgsConstructor
 @RequiredArgsConstructor
 @Accessors(chain = true)
@@ -25,8 +26,6 @@ public class User {
     private String email;
 
     private String password;
-
-    private Set<Role> roles;
 
 }
 

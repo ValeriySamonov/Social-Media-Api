@@ -1,5 +1,6 @@
 package com.example.social_media_api.service.user;
 
+import com.example.social_media_api.jwt.JwtAuthentication;
 import com.example.social_media_api.jwt.JwtProvider;
 import com.example.social_media_api.jwt.JwtRequest;
 import com.example.social_media_api.jwt.JwtResponse;
@@ -8,6 +9,7 @@ import io.jsonwebtoken.Claims;
 import jakarta.security.auth.message.AuthException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -64,5 +66,7 @@ public class AuthService {
         throw new AuthException("Невалидный JWT токен");
     }
 
-
+    public JwtAuthentication getAuthInfo() {
+        return (JwtAuthentication) SecurityContextHolder.getContext().getAuthentication();
+    }
 }

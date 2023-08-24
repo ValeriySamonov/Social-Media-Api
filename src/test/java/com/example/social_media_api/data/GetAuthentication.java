@@ -1,11 +1,8 @@
 package com.example.social_media_api.data;
 
-import com.example.social_media_api.exception.UserNotFoundException;
+import com.example.social_media_api.jwt.JwtAuthentication;
 import com.example.social_media_api.repository.UserRepository;
-import com.example.social_media_api.security.SecurityUserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -17,10 +14,7 @@ public class GetAuthentication {
 
     public void createAuthentication() {
 
-        SecurityUserPrincipal userDetails;
-            userDetails = new SecurityUserPrincipal(userRepository.findById(1L).orElseThrow(UserNotFoundException::new));
-
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        JwtAuthentication authentication = new JwtAuthentication(true, "user1");
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }

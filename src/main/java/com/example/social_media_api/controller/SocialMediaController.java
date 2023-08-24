@@ -4,8 +4,11 @@ import com.example.social_media_api.dto.friendship.FriendshipDTO;
 import com.example.social_media_api.dto.post.CreatePostDTO;
 import com.example.social_media_api.dto.post.PostDTO;
 import com.example.social_media_api.dto.post.UpdatePostDTO;
-import com.example.social_media_api.security.SecurityUserPrincipal;
+import com.example.social_media_api.exception.UserNotFoundException;
+import com.example.social_media_api.jwt.JwtAuthentication;
+import com.example.social_media_api.repository.UserRepository;
 import com.example.social_media_api.service.social.SocialMediaService;
+import com.example.social_media_api.service.user.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -14,7 +17,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,6 +30,8 @@ import java.util.List;
 public class SocialMediaController {
 
     private final SocialMediaService socialMediaService;
+    private final AuthService authService;
+    private final UserRepository userRepository;
 
     // Создание поста
     @Operation(summary = "Создать пост", description = "Пользователи могут создавать новые посты, указывая текст, заголовок и прикрепляя изображения.")
@@ -37,12 +41,13 @@ public class SocialMediaController {
     })
     @PostMapping(value = "/posts", consumes = "multipart/form-data")
     public Long createPost(
-            Authentication authentication,
             @ModelAttribute("createPostDTO") CreatePostDTO createPostDTO,
             @RequestParam(name = "files", required = false) List<MultipartFile> files) {
 
-        SecurityUserPrincipal securityUserPrincipal = (SecurityUserPrincipal) authentication.getPrincipal();
-        createPostDTO.setCreatorId(securityUserPrincipal.getUser().getId());
+        JwtAuthentication authInfo = authService.getAuthInfo();
+        Long userId = userRepository.findByUsername((String) authInfo.getPrincipal()).orElseThrow(UserNotFoundException::new).getId();
+
+        createPostDTO.setCreatorId(userId);
 
         return socialMediaService.createPost(createPostDTO, files);
     }
@@ -68,13 +73,14 @@ public class SocialMediaController {
     })
     @PutMapping(value = "/posts/{postId}", consumes = "multipart/form-data")
     public void updatePost(
-            Authentication authentication,
             @Parameter(description = "ID поста для редактирования") @PathVariable Long postId,
             @ModelAttribute UpdatePostDTO updatePostDTO,
             @RequestParam(name = "addedFiles", required = false) List<MultipartFile> addedFiles) {
 
-        SecurityUserPrincipal securityUserPrincipal = (SecurityUserPrincipal) authentication.getPrincipal();
-        updatePostDTO.setUserId(securityUserPrincipal.getUser().getId());
+        JwtAuthentication authInfo = authService.getAuthInfo();
+        Long userId = userRepository.findByUsername((String) authInfo.getPrincipal()).orElseThrow(UserNotFoundException::new).getId();
+
+        updatePostDTO.setUserId(userId);
 
         try {
             socialMediaService.updatePost(postId, updatePostDTO, addedFiles);
@@ -91,11 +97,10 @@ public class SocialMediaController {
     })
     @DeleteMapping("/posts")
     public void deletePost(
-            Authentication authentication,
             @Parameter(description = "ID поста для удаления") @RequestParam Long postId) {
 
-        SecurityUserPrincipal securityUserPrincipal = (SecurityUserPrincipal) authentication.getPrincipal();
-        Long userId = securityUserPrincipal.getUser().getId();
+        JwtAuthentication authInfo = authService.getAuthInfo();
+        Long userId = userRepository.findByUsername((String) authInfo.getPrincipal()).orElseThrow(UserNotFoundException::new).getId();
 
         socialMediaService.deletePost(userId, postId);
     }
@@ -110,11 +115,12 @@ public class SocialMediaController {
     })
     @PostMapping("/friendship/request")
     public void sendFriendshipRequest(
-            Authentication authentication,
             @RequestBody FriendshipDTO friendshipDTO) {
 
-        SecurityUserPrincipal securityUserPrincipal = (SecurityUserPrincipal) authentication.getPrincipal();
-        friendshipDTO.setUserId(securityUserPrincipal.getUser().getId());
+        JwtAuthentication authInfo = authService.getAuthInfo();
+        Long userId = userRepository.findByUsername((String) authInfo.getPrincipal()).orElseThrow(UserNotFoundException::new).getId();
+
+        friendshipDTO.setUserId(userId);
 
         socialMediaService.sendFriendshipRequest(friendshipDTO);
     }
@@ -128,11 +134,12 @@ public class SocialMediaController {
     })
     @PostMapping("/friendship/accept")
     public void acceptFriendshipRequest(
-            Authentication authentication,
             @RequestBody FriendshipDTO friendshipDTO) {
 
-        SecurityUserPrincipal securityUserPrincipal = (SecurityUserPrincipal) authentication.getPrincipal();
-        friendshipDTO.setUserId(securityUserPrincipal.getUser().getId());
+        JwtAuthentication authInfo = authService.getAuthInfo();
+        Long userId = userRepository.findByUsername((String) authInfo.getPrincipal()).orElseThrow(UserNotFoundException::new).getId();
+
+        friendshipDTO.setUserId(userId);
 
         socialMediaService.acceptFriendshipRequest(friendshipDTO);
     }
@@ -146,11 +153,12 @@ public class SocialMediaController {
     })
     @PostMapping("/friendship/reject")
     public void declineFriendshipRequest(
-            Authentication authentication,
             @RequestBody FriendshipDTO friendshipDTO) {
 
-        SecurityUserPrincipal securityUserPrincipal = (SecurityUserPrincipal) authentication.getPrincipal();
-        friendshipDTO.setUserId(securityUserPrincipal.getUser().getId());
+        JwtAuthentication authInfo = authService.getAuthInfo();
+        Long userId = userRepository.findByUsername((String) authInfo.getPrincipal()).orElseThrow(UserNotFoundException::new).getId();
+
+        friendshipDTO.setUserId(userId);
 
         socialMediaService.declineFriendshipRequest(friendshipDTO);
     }
@@ -164,11 +172,12 @@ public class SocialMediaController {
     })
     @PostMapping("/friendship/unfriend")
     public void removeFriend(
-            Authentication authentication,
             @RequestBody FriendshipDTO friendshipDTO) {
 
-        SecurityUserPrincipal securityUserPrincipal = (SecurityUserPrincipal) authentication.getPrincipal();
-        friendshipDTO.setUserId(securityUserPrincipal.getUser().getId());
+        JwtAuthentication authInfo = authService.getAuthInfo();
+        Long userId = userRepository.findByUsername((String) authInfo.getPrincipal()).orElseThrow(UserNotFoundException::new).getId();
+
+        friendshipDTO.setUserId(userId);
 
         socialMediaService.removeFriend(friendshipDTO);
     }
@@ -182,11 +191,10 @@ public class SocialMediaController {
     })
     @GetMapping("/activity-feed")
     public ResponseEntity<Page<PostDTO>> getUserActivityFeed(
-            Authentication authentication,
             @Parameter(description = "Номер страницы") @RequestParam(value = "page", required = false, defaultValue = "0") int page) {
 
-        SecurityUserPrincipal securityUserPrincipal = (SecurityUserPrincipal) authentication.getPrincipal();
-        Long userId = securityUserPrincipal.getUser().getId();
+        JwtAuthentication authInfo = authService.getAuthInfo();
+        Long userId = userRepository.findByUsername((String) authInfo.getPrincipal()).orElseThrow(UserNotFoundException::new).getId();
 
         Page<PostDTO> activityFeed = socialMediaService.getUserActivityFeed(userId, page);
         return ResponseEntity.ok(activityFeed);
