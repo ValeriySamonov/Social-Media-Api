@@ -6,6 +6,7 @@ import com.example.social_media_api.dto.post.PostDTO;
 import com.example.social_media_api.dto.post.UpdatePostDTO;
 import com.example.social_media_api.enums.FriendStatus;
 import com.example.social_media_api.enums.SubStatus;
+import com.example.social_media_api.exception.SubscriptionDoesNotExistException;
 import com.example.social_media_api.exception.UserNotFoundException;
 import com.example.social_media_api.model.Post;
 import com.example.social_media_api.model.PostImage;
@@ -31,7 +32,7 @@ import java.util.stream.Collectors;
 
 @Service()
 @RequiredArgsConstructor
-public class SocialMediaServiceImpl implements SocialMediaService{
+public class SocialMediaServiceImpl implements SocialMediaService {
 
     static final int PAGE_SIZE = 10;
 
@@ -46,12 +47,13 @@ public class SocialMediaServiceImpl implements SocialMediaService{
     @Override
     public Long createPost(CreatePostDTO createPostDTO, List<MultipartFile> files) {
 
-        User user = userRepository.findById(createPostDTO.getCreatorId()).orElseThrow(UserNotFoundException::new);
-        Post post = new Post();
-        post.setText(createPostDTO.getText());
-        post.setTitle(createPostDTO.getTitle());
-        post.setUser(user);
-        post.setCreatedAt(LocalDateTime.now());
+        User user = userRepository.findById(createPostDTO.getUserId()).orElseThrow(UserNotFoundException::new);
+        Post post = new Post()
+                .setText(createPostDTO.getText())
+                .setTitle(createPostDTO.getTitle())
+                .setUser(user)
+                .setCreatedAt(LocalDateTime.now());
+
         postRepository.save(post);
 
         if (!CollectionUtils.isEmpty(files)) {
@@ -104,18 +106,16 @@ public class SocialMediaServiceImpl implements SocialMediaService{
     @Override
     public void deletePost(Long userId, Long postId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        try {
-            Post post = postRepository.findByUserIdAndId(user.getId(), postId);
 
-            List<PostImage> removedImages = post.getImages();
-            for (PostImage removedImage : removedImages) {
-                imageFileAction.deleteFileFromDirectory(removedImage.getFileName());
-            }
-            postImageRepository.deleteAll(removedImages);
-            postRepository.delete(post);
-        } catch (NullPointerException e) {
-            e.printStackTrace();
+        Post post = postRepository.findByUserIdAndId(user.getId(), postId);
+
+        List<PostImage> removedImages = post.getImages();
+        for (PostImage removedImage : removedImages) {
+            imageFileAction.deleteFileFromDirectory(removedImage.getFileName());
         }
+        postImageRepository.deleteAll(removedImages);
+        postRepository.delete(post);
+
 
     }
 
@@ -128,13 +128,12 @@ public class SocialMediaServiceImpl implements SocialMediaService{
             throw new IllegalArgumentException();
         }
 
-        Subscription subscription = new Subscription();
-
-        subscription.setSubscriber(subscriber);
-        subscription.setTargetUser(targetUser);
-        subscription.setCreatedAt(LocalDateTime.now());
-        subscription.setFriendStatus(FriendStatus.UNACCEPTED);
-        subscription.setSubStatus(SubStatus.USER1);
+        Subscription subscription = new Subscription()
+                .setSubscriber(subscriber)
+                .setTargetUser(targetUser)
+                .setCreatedAt(LocalDateTime.now())
+                .setFriendStatus(FriendStatus.UNACCEPTED)
+                .setSubStatus(SubStatus.USER1);
 
         subscriptionRepository.save(subscription);
 
@@ -147,7 +146,7 @@ public class SocialMediaServiceImpl implements SocialMediaService{
                 friendshipDTO.getTargetUserId(), friendshipDTO.getUserId(), FriendStatus.UNACCEPTED);
 
         if (subscription == null) {
-            throw new NullPointerException();
+            throw new SubscriptionDoesNotExistException();
         }
 
         subscription.setCreatedAt(LocalDateTime.now());
@@ -165,7 +164,7 @@ public class SocialMediaServiceImpl implements SocialMediaService{
                 friendshipDTO.getTargetUserId(), friendshipDTO.getUserId(), FriendStatus.UNACCEPTED);
 
         if (subscription == null) {
-            throw new NullPointerException();
+            throw new SubscriptionDoesNotExistException();
         }
 
         subscription.setFriendStatus(FriendStatus.DECLINE);
@@ -180,7 +179,7 @@ public class SocialMediaServiceImpl implements SocialMediaService{
                 friendshipDTO.getUserId(), friendshipDTO.getTargetUserId(), FriendStatus.ACCEPTED);
 
         if (subscription == null) {
-            throw new NullPointerException();
+            throw new SubscriptionDoesNotExistException();
         }
 
         subscription.setCreatedAt(LocalDateTime.now());

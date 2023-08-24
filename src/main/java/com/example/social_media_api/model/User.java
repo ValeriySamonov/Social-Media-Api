@@ -1,14 +1,11 @@
 package com.example.social_media_api.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import lombok.experimental.Accessors;
 
 @Entity
-@Data
+@Setter
 @Getter
 @AllArgsConstructor
 @RequiredArgsConstructor

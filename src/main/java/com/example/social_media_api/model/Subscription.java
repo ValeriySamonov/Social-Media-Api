@@ -4,12 +4,14 @@ import com.example.social_media_api.enums.FriendStatus;
 import com.example.social_media_api.enums.SubStatus;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "subscriptions")
 @Data
+@Accessors(chain = true)
 public class Subscription {
 
     @Id
