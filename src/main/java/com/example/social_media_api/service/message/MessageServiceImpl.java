@@ -32,7 +32,8 @@ public class MessageServiceImpl implements MessageService{
     public void sendMessage(MessageDTO messageDTO) {
 
         JwtAuthentication authInfo = authServiceImpl.getAuthInfo();
-        Long userId = userRepository.findByUsername((String) authInfo.getPrincipal()).orElseThrow(UserNotFoundException::new).getId();
+
+        Long userId = userRepository.findByUsername(authInfo.getUsername()).orElseThrow(UserNotFoundException::new).getId();
 
         List<User> users = messageAbility(userId, messageDTO.getReceiverId());
 
