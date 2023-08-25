@@ -172,7 +172,7 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
 
         long userId = 1L;
 
-        mockMvc.perform(post("/api/friendship/request")
+        mockMvc.perform(patch("/api/friendship/request")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(friendshipDTO)))
                 .andExpect(status().isOk());

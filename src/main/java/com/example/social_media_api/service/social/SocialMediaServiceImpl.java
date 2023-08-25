@@ -81,10 +81,9 @@ public class SocialMediaServiceImpl implements SocialMediaService {
     public void updatePost(Long postId, UpdatePostDTO updatePostDTO, List<MultipartFile> addedFiles) {
 
         User user = userRepository.findById(getAuthenticatedUserId()).orElseThrow(UserNotFoundException::new);
-        Post post = postRepository.findByUserIdAndId(user.getId(), postId);
-
-        post.setTitle(updatePostDTO.getTitle());
-        post.setText(updatePostDTO.getText());
+        Post post = postRepository.findByUserIdAndId(user.getId(), postId)
+                .setTitle(updatePostDTO.getTitle())
+                .setText(updatePostDTO.getText());
 
         if (!CollectionUtils.isEmpty(addedFiles)) {
 

@@ -21,7 +21,7 @@ import java.util.List;
 
 @Service()
 @RequiredArgsConstructor
-public class MessageServiceImpl implements MessageService{
+public class MessageServiceImpl implements MessageService {
 
     private final MessageRepository messageRepository;
     private final SubscriptionRepository subscriptionRepository;
@@ -37,11 +37,11 @@ public class MessageServiceImpl implements MessageService{
 
         List<User> users = messageAbility(userId, messageDTO.getReceiverId());
 
-        Message message = new Message();
-        message.setSender(users.get(0));
-        message.setReceiver(users.get(1));
-        message.setContent(messageDTO.getContent());
-        message.setSentAt(LocalDateTime.now());
+        Message message = new Message()
+                .setSender(users.get(0))
+                .setReceiver(users.get(1))
+                .setContent(messageDTO.getContent())
+                .setSentAt(LocalDateTime.now());
 
         messageRepository.save(message);
 
