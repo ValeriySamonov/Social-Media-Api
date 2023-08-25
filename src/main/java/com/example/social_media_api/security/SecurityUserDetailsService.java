@@ -6,13 +6,12 @@ import com.example.social_media_api.repository.UserRepository;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 @Service
 @Getter
 @RequiredArgsConstructor
-public class SecurityUserDetailsService implements UserDetailsService {
+public class SecurityUserDetailsService implements CustomUserDetailsService {
 
     private final UserRepository userRepository;
 
@@ -24,4 +23,11 @@ public class SecurityUserDetailsService implements UserDetailsService {
         return new SecurityUserPrincipal(user);
     }
 
+    @Override
+    public UserDetails loadUserById(Long userId) {
+
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+
+        return new SecurityUserPrincipal(user);
+    }
 }
