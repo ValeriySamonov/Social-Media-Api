@@ -14,7 +14,7 @@ public class GetAuthentication {
 
     public void createAuthentication() {
 
-        JwtAuthentication authentication = new JwtAuthentication(true, "user1");
+        JwtAuthentication authentication = new JwtAuthentication(true, "1");
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }

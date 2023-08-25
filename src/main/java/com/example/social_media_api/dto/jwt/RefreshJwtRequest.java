@@ -1,9 +1,8 @@
-package com.example.social_media_api.jwt;
+package com.example.social_media_api.dto.jwt;
 
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
 
 @Getter
 @AllArgsConstructor

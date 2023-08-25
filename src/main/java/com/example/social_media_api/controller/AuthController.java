@@ -1,8 +1,8 @@
 package com.example.social_media_api.controller;
 
-import com.example.social_media_api.jwt.JwtRequest;
-import com.example.social_media_api.jwt.JwtResponse;
-import com.example.social_media_api.jwt.RefreshJwtRequest;
+import com.example.social_media_api.dto.jwt.JwtRequest;
+import com.example.social_media_api.dto.jwt.JwtResponse;
+import com.example.social_media_api.dto.jwt.RefreshJwtRequest;
 import com.example.social_media_api.service.auth.AuthServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
