@@ -8,7 +8,6 @@ import java.util.List;
 @Data
 @Accessors(chain = true)
 public class UpdatePostDTO {
-    private Long userId;
     private String title;
     private String text;
     private List<Long> removedFileIds;

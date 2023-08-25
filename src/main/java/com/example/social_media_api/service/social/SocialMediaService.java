@@ -19,7 +19,7 @@ public interface SocialMediaService {
     void declineFriendshipRequest(FriendshipDTO friendshipDTO);
     void removeFriend(FriendshipDTO friendshipDTO);
     void updatePost(Long postId, UpdatePostDTO updatePostDTO, List<MultipartFile> addedFiles) throws IOException;
-    void deletePost(Long userId, Long postId);
-    Page<PostDTO> getUserActivityFeed(Long userId, int page);
+    void deletePost(Long postId);
+    Page<PostDTO> getUserActivityFeed(int page);
 
 }

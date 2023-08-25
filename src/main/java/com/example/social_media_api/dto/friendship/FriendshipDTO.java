@@ -6,6 +6,5 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class FriendshipDTO {
-    private Long userId;
     private Long targetUserId;
 }

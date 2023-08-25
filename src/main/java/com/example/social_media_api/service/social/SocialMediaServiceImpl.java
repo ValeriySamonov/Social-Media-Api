@@ -7,7 +7,9 @@ import com.example.social_media_api.dto.post.UpdatePostDTO;
 import com.example.social_media_api.enums.FriendStatus;
 import com.example.social_media_api.enums.SubStatus;
 import com.example.social_media_api.exception.SubscriptionDoesNotExistException;
+import com.example.social_media_api.exception.UserCanNotSubscribeException;
 import com.example.social_media_api.exception.UserNotFoundException;
+import com.example.social_media_api.jwt.JwtAuthentication;
 import com.example.social_media_api.model.Post;
 import com.example.social_media_api.model.PostImage;
 import com.example.social_media_api.model.Subscription;
@@ -16,6 +18,7 @@ import com.example.social_media_api.repository.PostImageRepository;
 import com.example.social_media_api.repository.PostRepository;
 import com.example.social_media_api.repository.SubscriptionRepository;
 import com.example.social_media_api.repository.UserRepository;
+import com.example.social_media_api.service.auth.AuthServiceImpl;
 import com.example.social_media_api.utilities.ImageFileAction;
 import com.example.social_media_api.utilities.mapper.MapEntityToDTO;
 import lombok.RequiredArgsConstructor;
@@ -43,11 +46,12 @@ public class SocialMediaServiceImpl implements SocialMediaService {
     private final PostImageRepository postImageRepository;
     private final PostRepository postRepository;
     private final SubscriptionRepository subscriptionRepository;
+    private final AuthServiceImpl authServiceImpl;
 
     @Override
     public Long createPost(CreatePostDTO createPostDTO, List<MultipartFile> files) {
 
-        User user = userRepository.findById(createPostDTO.getUserId()).orElseThrow(UserNotFoundException::new);
+        User user = userRepository.findById(getAuthenticatedUserId()).orElseThrow(UserNotFoundException::new);
         Post post = new Post()
                 .setText(createPostDTO.getText())
                 .setTitle(createPostDTO.getTitle())
@@ -64,11 +68,10 @@ public class SocialMediaServiceImpl implements SocialMediaService {
 
     @Override
     public Page<PostDTO> getPostByUserId(Long postOwnerId, int page) {
-        User user = userRepository.findById(postOwnerId).orElseThrow(UserNotFoundException::new);
 
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("createdAt").descending());
 
-        Page<Post> postsPage = postRepository.findByUser(user, pageable);
+        Page<Post> postsPage = postRepository.findByUserId(postOwnerId, pageable);
 
         return postsPage.map(mapEntityToDTO::mapToPostDTO);
 
@@ -76,7 +79,8 @@ public class SocialMediaServiceImpl implements SocialMediaService {
 
     @Override
     public void updatePost(Long postId, UpdatePostDTO updatePostDTO, List<MultipartFile> addedFiles) {
-        User user = userRepository.findById(updatePostDTO.getUserId()).orElseThrow(UserNotFoundException::new);
+
+        User user = userRepository.findById(getAuthenticatedUserId()).orElseThrow(UserNotFoundException::new);
         Post post = postRepository.findByUserIdAndId(user.getId(), postId);
 
         post.setTitle(updatePostDTO.getTitle());
@@ -104,9 +108,9 @@ public class SocialMediaServiceImpl implements SocialMediaService {
     }
 
     @Override
-    public void deletePost(Long userId, Long postId) {
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+    public void deletePost(Long postId) {
 
+        User user = userRepository.findById(getAuthenticatedUserId()).orElseThrow(UserNotFoundException::new);
         Post post = postRepository.findByUserIdAndId(user.getId(), postId);
 
         List<PostImage> removedImages = post.getImages();
@@ -121,11 +125,12 @@ public class SocialMediaServiceImpl implements SocialMediaService {
 
     @Override
     public void sendFriendshipRequest(FriendshipDTO friendshipDTO) {
-        User subscriber = userRepository.findById(friendshipDTO.getUserId()).orElseThrow(UserNotFoundException::new); // Получите текущего пользователя (подписчика)
+
+        User subscriber = userRepository.findById(getAuthenticatedUserId()).orElseThrow(UserNotFoundException::new); // Получите текущего пользователя (подписчика)
         User targetUser = userRepository.findById(friendshipDTO.getTargetUserId()).orElseThrow(UserNotFoundException::new);
 
         if (subscriber.getId().equals(targetUser.getId())) {
-            throw new IllegalArgumentException();
+            throw new UserCanNotSubscribeException();
         }
 
         Subscription subscription = new Subscription()
@@ -143,7 +148,7 @@ public class SocialMediaServiceImpl implements SocialMediaService {
     public void acceptFriendshipRequest(FriendshipDTO friendshipDTO) {
 
         Subscription subscription = subscriptionRepository.findBySubscriberIdAndTargetUserIdAndFriendStatus(
-                friendshipDTO.getTargetUserId(), friendshipDTO.getUserId(), FriendStatus.UNACCEPTED);
+                friendshipDTO.getTargetUserId(), getAuthenticatedUserId(), FriendStatus.UNACCEPTED);
 
         if (subscription == null) {
             throw new SubscriptionDoesNotExistException();
@@ -161,7 +166,7 @@ public class SocialMediaServiceImpl implements SocialMediaService {
     public void declineFriendshipRequest(FriendshipDTO friendshipDTO) {
 
         Subscription subscription = subscriptionRepository.findBySubscriberIdAndTargetUserIdAndFriendStatus(
-                friendshipDTO.getTargetUserId(), friendshipDTO.getUserId(), FriendStatus.UNACCEPTED);
+                friendshipDTO.getTargetUserId(), getAuthenticatedUserId(), FriendStatus.UNACCEPTED);
 
         if (subscription == null) {
             throw new SubscriptionDoesNotExistException();
@@ -176,7 +181,7 @@ public class SocialMediaServiceImpl implements SocialMediaService {
     public void removeFriend(FriendshipDTO friendshipDTO) {
 
         Subscription subscription = subscriptionRepository.findSubscriptionsWithFriendStatus(
-                friendshipDTO.getUserId(), friendshipDTO.getTargetUserId(), FriendStatus.ACCEPTED);
+                getAuthenticatedUserId(), friendshipDTO.getTargetUserId(), FriendStatus.ACCEPTED);
 
         if (subscription == null) {
             throw new SubscriptionDoesNotExistException();
@@ -185,7 +190,7 @@ public class SocialMediaServiceImpl implements SocialMediaService {
         subscription.setCreatedAt(LocalDateTime.now());
         subscription.setFriendStatus(FriendStatus.UNACCEPTED);
 
-        if (Objects.equals(subscription.getSubscriber().getId(), friendshipDTO.getUserId())) {
+        if (Objects.equals(subscription.getSubscriber().getId(), getAuthenticatedUserId())) {
             subscription.setSubStatus(SubStatus.USER2);
         } else {
             subscription.setSubStatus(SubStatus.USER1);
@@ -196,11 +201,11 @@ public class SocialMediaServiceImpl implements SocialMediaService {
     }
 
     @Override
-    public Page<PostDTO> getUserActivityFeed(Long userId, int page) {
+    public Page<PostDTO> getUserActivityFeed(int page) {
 
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("createdAt").descending());
 
-        List<Subscription> subscriptions = subscriptionRepository.findBySubscriberIdAndSubscriptionStatusIn(userId, SubStatus.USER1, SubStatus.BOTH);
+        List<Subscription> subscriptions = subscriptionRepository.findBySubscriberIdAndSubscriptionStatusIn(getAuthenticatedUserId(), SubStatus.USER1, SubStatus.BOTH);
 
         List<Long> targetUserIds = subscriptions.stream()
                 .map(Subscription::getTargetUser)
@@ -215,6 +220,11 @@ public class SocialMediaServiceImpl implements SocialMediaService {
                 .collect(Collectors.toList());
 
         return new PageImpl<>(postDTOList, pageable, activityFeedPosts.size());
+    }
+
+    private Long getAuthenticatedUserId() {
+        JwtAuthentication authInfo = authServiceImpl.getAuthInfo();
+        return userRepository.findByUsername((String) authInfo.getPrincipal()).orElseThrow(UserNotFoundException::new).getId();
     }
 
 }

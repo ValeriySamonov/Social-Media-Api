@@ -52,10 +52,10 @@ public class MessageControllerTest extends BaseIntegrationContainer {
     void sendMessageTest() {
 
         MessageDTO messageDTO = new MessageDTO()
-                .setSenderId(1L)
                 .setReceiverId(3L)
                 .setContent("Text");
 
+        long userId = 1L;
         String jsonMessage = new ObjectMapper().writeValueAsString(messageDTO);
 
         mockMvc.perform(post("/api/messages")
@@ -63,7 +63,7 @@ public class MessageControllerTest extends BaseIntegrationContainer {
                         .content(jsonMessage))
                 .andExpect(status().isOk());
 
-        List<Message> messages = messageRepository.findBySenderIdAndReceiverId(messageDTO.getSenderId(), messageDTO.getReceiverId());
+        List<Message> messages = messageRepository.findBySenderIdAndReceiverId(userId, messageDTO.getReceiverId());
         assertFalse(messages.isEmpty());
         assertEquals(messageDTO.getContent(), messages.get(0).getContent());
 
