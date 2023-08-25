@@ -92,7 +92,7 @@ public class SocialMediaController {
             @ApiResponse(responseCode = "200", description = "Запрос на дружбу отправлен"),
             @ApiResponse(responseCode = "404", description = "Пользователь не существует")
     })
-    @PostMapping("/friendship/request")
+    @PatchMapping("/friendship/request")
     public void sendFriendshipRequest(
             @RequestBody FriendshipDTO friendshipDTO) {
 
