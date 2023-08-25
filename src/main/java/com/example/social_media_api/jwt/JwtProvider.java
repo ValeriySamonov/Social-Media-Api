@@ -35,9 +35,11 @@ public class JwtProvider {
     }
 
     public String generateAccessToken(@NonNull UserDetails user) {
+
         final LocalDateTime now = LocalDateTime.now();
         final Instant accessExpirationInstant = now.plusMinutes(lifetimeForAccessTokenInMinutes).atZone(ZoneId.systemDefault()).toInstant();
         final Date accessExpiration = Date.from(accessExpirationInstant);
+
         return Jwts.builder()
                 .setSubject(user.getUsername())
                 .setExpiration(accessExpiration)
@@ -46,9 +48,11 @@ public class JwtProvider {
     }
 
     public String generateRefreshToken(@NonNull UserDetails user) {
+
         final LocalDateTime now = LocalDateTime.now();
         final Instant refreshExpirationInstant = now.plusDays(lifetimeForRefreshTokenInDays).atZone(ZoneId.systemDefault()).toInstant();
         final Date refreshExpiration = Date.from(refreshExpirationInstant);
+
         return Jwts.builder()
                 .setSubject(user.getUsername())
                 .setExpiration(refreshExpiration)
@@ -65,6 +69,7 @@ public class JwtProvider {
     }
 
     private boolean validateToken(@NonNull String token, SecretKey secret) {
+
         try {
             Jwts.parserBuilder()
                     .setSigningKey(secret)
@@ -72,15 +77,19 @@ public class JwtProvider {
                     .parseClaimsJws(token);
             return true;
         } catch (ExpiredJwtException expEx) {
-            log.error("Token expired", expEx);
+            log.error("Срок токена истёк", expEx);
+
         } catch (UnsupportedJwtException unsEx) {
-            log.error("Unsupported jwt", unsEx);
+            log.error("Неподдерживаемый jwt", unsEx);
+
         } catch (MalformedJwtException mjEx) {
             log.error("Malformed jwt", mjEx);
+
         } catch (SignatureException sEx) {
-            log.error("Invalid signature", sEx);
+            log.error("Невалидная сигнатура", sEx);
+
         } catch (Exception e) {
-            log.error("invalid token", e);
+            log.error("Невалидный токен", e);
         }
         return false;
     }
@@ -94,6 +103,7 @@ public class JwtProvider {
     }
 
     private Claims getClaims(@NonNull String token, SecretKey secret) {
+
         return Jwts.parserBuilder()
                 .setSigningKey(secret)
                 .build()

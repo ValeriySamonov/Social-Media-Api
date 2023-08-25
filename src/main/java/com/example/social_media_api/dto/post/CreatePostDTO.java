@@ -6,7 +6,6 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class CreatePostDTO {
-    private Long userId;
     private String title;
     private String text;
 }

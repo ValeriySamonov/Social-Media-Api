@@ -19,11 +19,18 @@ public class SocialMediaExceptionHandlers{
                 .body("Пользователь не существует: " + ex.getMessage());
     }
 
-    @ExceptionHandler(value = {IllegalArgumentException.class})
-    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
+    @ExceptionHandler(value = {UserCanNotSubscribeException.class})
+    public ResponseEntity<String> handleUserCanNotSubscribeException(UserCanNotSubscribeException ex) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body("Вы не можете подписаться на себя/писать себе: " + ex.getMessage());
+                .body("Вы не можете подписаться на себя: " + ex.getMessage());
+    }
+
+    @ExceptionHandler(value = {UserCanNotWriteException.class})
+    public ResponseEntity<String> handleUserCanNotWriteException(UserCanNotWriteException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body("Вы не можете писать себе: " + ex.getMessage());
     }
 
     @ExceptionHandler(value = {UserAlreadyExistsException.class})
@@ -58,6 +65,13 @@ public class SocialMediaExceptionHandlers{
     public ResponseEntity<String> handleSubscriptionDoesNotExist(SubscriptionDoesNotExistException ex) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .body("Подписка/друг не существует: " + ex.getMessage());
+    }
+
+    @ExceptionHandler(value = {WriteFileException.class})
+    public ResponseEntity<String> handleWriteFileException(WriteFileException ex) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Подписка/друг не существует: " + ex.getMessage());
     }
 
