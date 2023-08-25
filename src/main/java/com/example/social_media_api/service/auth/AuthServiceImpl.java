@@ -33,12 +33,12 @@ public class AuthServiceImpl implements AuthService {
             final String accessToken = jwtProvider.generateAccessToken(user);
             final String refreshToken = jwtProvider.generateRefreshToken(user);
 
-            refreshStorage.put(user.getUsername(), refreshToken);
+            refreshStorage.put(String.valueOf(user.getUserId()), refreshToken);
 
             return new JwtResponse(accessToken, refreshToken);
 
         } else {
-            throw new AuthException("Неправильный пароль");
+            throw new AuthException("Ошибка аутентификации");
         }
     }
 
@@ -47,12 +47,12 @@ public class AuthServiceImpl implements AuthService {
         if (jwtProvider.validateRefreshToken(refreshToken)) {
 
             final Claims claims = jwtProvider.getRefreshClaims(refreshToken);
-            final String login = claims.getSubject();
-            final String saveRefreshToken = refreshStorage.get(login);
+            final String userId = claims.getSubject();
+            final String saveRefreshToken = refreshStorage.get(userId);
 
             if (saveRefreshToken != null && saveRefreshToken.equals(refreshToken)) {
 
-                final CustomUserDetails user = (CustomUserDetails) userService.loadUserByUsername(login);
+                final CustomUserDetails user = (CustomUserDetails) userService.loadUserById(Long.valueOf(userId));
                 final String accessToken = jwtProvider.generateAccessToken(user);
 
                 return new JwtResponse(accessToken, null);
@@ -66,16 +66,16 @@ public class AuthServiceImpl implements AuthService {
         if (jwtProvider.validateRefreshToken(refreshToken)) {
 
             final Claims claims = jwtProvider.getRefreshClaims(refreshToken);
-            final String login = claims.getSubject();
-            final String saveRefreshToken = refreshStorage.get(login);
+            final String userId = claims.getSubject();
+            final String saveRefreshToken = refreshStorage.get(userId);
 
             if (saveRefreshToken != null && saveRefreshToken.equals(refreshToken)) {
 
-                final CustomUserDetails user = (CustomUserDetails) userService.loadUserByUsername(login);
+                final CustomUserDetails user = (CustomUserDetails) userService.loadUserById(Long.valueOf(userId));
                 final String accessToken = jwtProvider.generateAccessToken(user);
                 final String newRefreshToken = jwtProvider.generateRefreshToken(user);
 
-                refreshStorage.put(user.getUsername(), newRefreshToken);
+                refreshStorage.put(String.valueOf(user.getUserId()), newRefreshToken);
 
                 return new JwtResponse(accessToken, newRefreshToken);
             }

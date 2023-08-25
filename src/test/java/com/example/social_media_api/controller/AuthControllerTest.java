@@ -25,20 +25,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Sql(scripts = "/sql/data-test-auth.sql") // Путь к скрипту с тестовыми данными
 public class AuthControllerTest extends BaseIntegrationContainer {
 
-
     @Autowired
     MockMvc mockMvc;
 
-    @DisplayName("Тест для метода отправки сообщения и получения токена")
+    @DisplayName("Тест для метода аутентификации и получения access и refresh токенов")
     @Test
     @SneakyThrows
     void loginTest() {
-        // Given
+
         JwtRequest authRequest = new JwtRequest("user1", "password1");
 
         String jsonAuthRequest = new ObjectMapper().writeValueAsString(authRequest);
 
-        // When
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonAuthRequest))
