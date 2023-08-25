@@ -223,7 +223,7 @@ public class SocialMediaServiceImpl implements SocialMediaService {
 
     private Long getAuthenticatedUserId() {
         JwtAuthentication authInfo = authServiceImpl.getAuthInfo();
-        return userRepository.findByUsername(authInfo.getUsername()).orElseThrow(UserNotFoundException::new).getId();
+        return Long.valueOf(authInfo.getName());
     }
 
 }

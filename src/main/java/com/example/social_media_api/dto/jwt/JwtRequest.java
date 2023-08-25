@@ -1,12 +1,12 @@
-package com.example.social_media_api.jwt;
+package com.example.social_media_api.dto.jwt;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 
 @Data
 @AllArgsConstructor
 public class JwtRequest {
-
     private String username;
     private String password;
 

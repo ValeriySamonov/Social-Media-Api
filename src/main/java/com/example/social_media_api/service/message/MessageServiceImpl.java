@@ -31,11 +31,7 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public void sendMessage(MessageDTO messageDTO) {
 
-        JwtAuthentication authInfo = authServiceImpl.getAuthInfo();
-
-        Long userId = userRepository.findByUsername(authInfo.getUsername()).orElseThrow(UserNotFoundException::new).getId();
-
-        List<User> users = messageAbility(userId, messageDTO.getReceiverId());
+        List<User> users = messageAbility(getAuthenticatedUserId(), messageDTO.getReceiverId());
 
         Message message = new Message()
                 .setSender(users.get(0))
@@ -66,6 +62,12 @@ public class MessageServiceImpl implements MessageService {
 
         return users;
 
+    }
+
+    private Long getAuthenticatedUserId() {
+        JwtAuthentication authInfo = authServiceImpl.getAuthInfo();
+        return Long.valueOf(authInfo.getName());
+        //return userRepository.findByUsername(authInfo.getUsername()).orElseThrow(UserNotFoundException::new).getId();
     }
 
 }

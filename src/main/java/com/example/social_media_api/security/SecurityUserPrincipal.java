@@ -3,12 +3,11 @@ package com.example.social_media_api.security;
 import com.example.social_media_api.model.User;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
 @Getter
-public class SecurityUserPrincipal implements UserDetails {
+public class SecurityUserPrincipal implements CustomUserDetails {
 
     private final User user;
 
@@ -51,5 +50,11 @@ public class SecurityUserPrincipal implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    // Возвращает ID пользователя.
+    public Long getUserId() {
+        return user.getId();
     }
 }

@@ -2,7 +2,7 @@ package com.example.social_media_api.controller;
 
 import com.example.social_media_api.SocialMediaApiApplication;
 import com.example.social_media_api.container.BaseIntegrationContainer;
-import com.example.social_media_api.jwt.JwtRequest;
+import com.example.social_media_api.dto.jwt.JwtRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.DisplayName;

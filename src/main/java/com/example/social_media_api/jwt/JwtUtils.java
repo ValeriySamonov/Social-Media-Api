@@ -10,7 +10,7 @@ public final class JwtUtils {
     public static JwtAuthentication generate(Claims claims) {
 
         final JwtAuthentication jwtInfoToken = new JwtAuthentication();
-        jwtInfoToken.setUsername(claims.getSubject());
+        jwtInfoToken.setUserId(claims.getSubject());
         return jwtInfoToken;
     }
 
