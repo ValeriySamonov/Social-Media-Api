@@ -141,10 +141,11 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
     @SneakyThrows
     public void getPostByUserIdTest() {
 
-        long userId = 1L;
+        long postOwnerId = 1L;
         int page = 0;
+        int pageSize = 10;
 
-        mockMvc.perform(get("/api/posts/" + userId + "?page=" + page))
+        mockMvc.perform(get("/api/posts/" + postOwnerId + "?page=" + page + "&pageSize=" + pageSize))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isNotEmpty());
@@ -259,8 +260,9 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
     public void getUserActivityFeedTest() {
 
         int page = 0;
+        int pageSize = 10;
 
-        mockMvc.perform(get("/api/activity-feed" + "?page=" + page))
+        mockMvc.perform(get("/api/activity-feed" + "?page=" + page + "&pageSize=" + pageSize))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isNotEmpty());

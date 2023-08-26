@@ -18,7 +18,7 @@ import com.example.social_media_api.repository.PostImageRepository;
 import com.example.social_media_api.repository.PostRepository;
 import com.example.social_media_api.repository.SubscriptionRepository;
 import com.example.social_media_api.repository.UserRepository;
-import com.example.social_media_api.service.auth.AuthServiceImpl;
+import com.example.social_media_api.service.auth.AuthService;
 import com.example.social_media_api.utilities.ImageFileAction;
 import com.example.social_media_api.utilities.mapper.MapEntityToDTO;
 import lombok.RequiredArgsConstructor;
@@ -30,14 +30,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 
 @Service()
 @RequiredArgsConstructor
 public class SocialMediaServiceImpl implements SocialMediaService {
-
-    static final int PAGE_SIZE = 10;
 
     private final ImageFileAction imageFileAction;
     private final MapEntityToDTO mapEntityToDTO;
@@ -46,7 +43,7 @@ public class SocialMediaServiceImpl implements SocialMediaService {
     private final PostImageRepository postImageRepository;
     private final PostRepository postRepository;
     private final SubscriptionRepository subscriptionRepository;
-    private final AuthServiceImpl authServiceImpl;
+    private final AuthService authService;
 
     @Override
     public Long createPost(CreatePostDTO createPostDTO, List<MultipartFile> files) {
@@ -67,9 +64,9 @@ public class SocialMediaServiceImpl implements SocialMediaService {
     }
 
     @Override
-    public Page<PostDTO> getPostByUserId(Long postOwnerId, int page) {
+    public Page<PostDTO> getPostByUserId(Long postOwnerId, int page, int pageSize) {
 
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
 
         Page<Post> postsPage = postRepository.findByUserId(postOwnerId, pageable);
 
@@ -135,7 +132,6 @@ public class SocialMediaServiceImpl implements SocialMediaService {
         Subscription subscription = new Subscription()
                 .setSubscriber(subscriber)
                 .setTargetUser(targetUser)
-                .setCreatedAt(LocalDateTime.now())
                 .setFriendStatus(FriendStatus.UNACCEPTED)
                 .setSubStatus(SubStatus.USER1);
 
@@ -153,7 +149,6 @@ public class SocialMediaServiceImpl implements SocialMediaService {
             throw new SubscriptionDoesNotExistException();
         }
 
-        subscription.setCreatedAt(LocalDateTime.now());
         subscription.setFriendStatus(FriendStatus.ACCEPTED);
         subscription.setSubStatus(SubStatus.BOTH);
 
@@ -186,7 +181,6 @@ public class SocialMediaServiceImpl implements SocialMediaService {
             throw new SubscriptionDoesNotExistException();
         }
 
-        subscription.setCreatedAt(LocalDateTime.now());
         subscription.setFriendStatus(FriendStatus.UNACCEPTED);
 
         if (Objects.equals(subscription.getSubscriber().getId(), getAuthenticatedUserId())) {
@@ -200,29 +194,29 @@ public class SocialMediaServiceImpl implements SocialMediaService {
     }
 
     @Override
-    public Page<PostDTO> getUserActivityFeed(int page) {
+    public Page<PostDTO> getUserActivityFeed(int page, int pageSize) {
 
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
 
         List<Subscription> subscriptions = subscriptionRepository.findBySubscriberIdAndSubscriptionStatusIn(getAuthenticatedUserId(), SubStatus.USER1, SubStatus.BOTH);
 
         List<Long> targetUserIds = subscriptions.stream()
                 .map(Subscription::getTargetUser)
                 .map(User::getId)
-                .collect(Collectors.toList());
+                .toList();
 
         List<Post> activityFeedPosts = postRepository.findByUserIdIn(targetUserIds);
 
 
         List<PostDTO> postDTOList = activityFeedPosts.stream()
                 .map(mapEntityToDTO::mapToPostDTO)
-                .collect(Collectors.toList());
+                .toList();
 
         return new PageImpl<>(postDTOList, pageable, activityFeedPosts.size());
     }
 
     private Long getAuthenticatedUserId() {
-        JwtAuthentication authInfo = authServiceImpl.getAuthInfo();
+        JwtAuthentication authInfo = authService.getAuthInfo();
         return Long.valueOf(authInfo.getName());
     }
 

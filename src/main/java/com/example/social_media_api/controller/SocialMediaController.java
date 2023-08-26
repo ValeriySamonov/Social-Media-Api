@@ -49,9 +49,10 @@ public class SocialMediaController {
     })
     @GetMapping("/posts/{postOwnerId}")
     public ResponseEntity<Page<PostDTO>> getPostByUserId(@Parameter(description = "ID автора поста") @PathVariable Long postOwnerId,
-                                                         @Parameter(description = "Номер страницы") @RequestParam(value = "page", required = false, defaultValue = "0") int page) {
+                                                         @Parameter(description = "Номер страницы") @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+                                                         @Parameter(description = "Размер страницы") @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize) {
 
-        return ResponseEntity.ok(socialMediaService.getPostByUserId(postOwnerId, page));
+        return ResponseEntity.ok(socialMediaService.getPostByUserId(postOwnerId, page, pageSize));
     }
 
     // Обновление поста
@@ -67,7 +68,7 @@ public class SocialMediaController {
             @ModelAttribute UpdatePostDTO updatePostDTO,
             @RequestParam(name = "addedFiles", required = false) List<MultipartFile> addedFiles) {
 
-            socialMediaService.updatePost(postId, updatePostDTO, addedFiles);
+        socialMediaService.updatePost(postId, updatePostDTO, addedFiles);
 
     }
 
@@ -150,9 +151,10 @@ public class SocialMediaController {
     })
     @GetMapping("/activity-feed")
     public ResponseEntity<Page<PostDTO>> getUserActivityFeed(
-            @Parameter(description = "Номер страницы") @RequestParam(value = "page", required = false, defaultValue = "0") int page) {
+            @Parameter(description = "Номер страницы") @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+            @Parameter(description = "Размер страницы") @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize) {
 
-        Page<PostDTO> activityFeed = socialMediaService.getUserActivityFeed(page);
+        Page<PostDTO> activityFeed = socialMediaService.getUserActivityFeed(page, pageSize);
         return ResponseEntity.ok(activityFeed);
     }
 
