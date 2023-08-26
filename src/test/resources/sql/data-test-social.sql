@@ -11,6 +11,6 @@ INSERT INTO post_images (file_name, post_id)
 VALUES ('test1.jpg', 1),
        ('test2.jpg', 1);
 
-INSERT INTO subscriptions (subscriber_id, target_user_id, created_at, friend_status, subs_status)
-VALUES (2, 1, '2023-08-15 23:34:05.262185', 0, 1),
-       (1 ,3, '2023-08-15 23:34:05.262185', 1, 2);
+INSERT INTO subscriptions (subscriber_id, target_user_id, friend_status, subs_status)
+VALUES (2, 1, 0, 1),
+       (1 ,3, 1, 2);

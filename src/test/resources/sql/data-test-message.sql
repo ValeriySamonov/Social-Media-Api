@@ -8,6 +8,6 @@ INSERT INTO messages (sender_id, receiver_id, content)
 VALUES (1, 2, 'message1'),
        (2, 1, 'message2');
 
-INSERT INTO subscriptions (subscriber_id, target_user_id, created_at, friend_status, subs_status)
-VALUES (2, 1, '2023-08-15 23:34:05.262185', 0, 1),
-       (1 ,3, '2023-08-15 23:34:05.262185', 1, 2);
+INSERT INTO subscriptions (subscriber_id, target_user_id, friend_status, subs_status)
+VALUES (2, 1, 0, 1),
+       (1 ,3, 1, 2);
