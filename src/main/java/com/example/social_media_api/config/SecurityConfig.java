@@ -50,6 +50,7 @@ public class SecurityConfig {
     protected void customizeRequest(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry registry) {
         try {
             registry
+
                     .requestMatchers("/api/auth/login", "/api/auth/token", "/api/users")
                     .permitAll()
                     .anyRequest()

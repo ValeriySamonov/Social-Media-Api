@@ -1,8 +1,8 @@
 -- Вставка тестовых пользователей
 INSERT INTO users (username, email, password)
-VALUES ('user1', 'user1@example.com', 'password1'),
-       ('user2', 'user2@example.com', 'password2'),
-       ('user3', 'user3@example.com', 'password3');
+VALUES ('user1', 'user1@example.com', '$2a$12$BFV7OVGwgriHtAeb3QD/Ze0RVi5TSVcO5gK2/9/vCdkCnDvj5UTF2'),
+       ('user2', 'user2@example.com', '$2a$12$4GntsWHEmY49H/tCGWzlUuAiNgTV6JVN1XXw6bJ8bgwul7eLUwklW'),
+       ('user3', 'user3@example.com', '$2a$12$0zXmSKGJeQwhQPNulEOYaex2cxIl9b0MB7K3YxXm5Xnbg6HAsuONG');
 
 INSERT INTO posts (title, text, user_id, created_at)
 VALUES ('Title', 'Text', 1, '2023-08-15 23:34:05.262185');
