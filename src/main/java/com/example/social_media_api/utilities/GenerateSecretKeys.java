@@ -4,6 +4,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
 
+// Генерация секретных ключей для создания токенов.
+// Результат выводится в консоль. Для простоты не стал использовать логгеры.
 public class GenerateSecretKeys {
 
     public static void main(String[] args) {
