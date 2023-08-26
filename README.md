@@ -1,4 +1,4 @@
-# SocialMedia API
+# Social Media API
 
 ![GitHub license](https://img.shields.io/github/license/your-username/SocialMedia-API)
 ![GitHub stars](https://img.shields.io/github/stars/your-username/SocialMedia-API?style=social)
