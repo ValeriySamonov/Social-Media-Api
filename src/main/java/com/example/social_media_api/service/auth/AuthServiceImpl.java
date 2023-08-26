@@ -1,9 +1,9 @@
 package com.example.social_media_api.service.auth;
 
-import com.example.social_media_api.jwt.JwtAuthentication;
-import com.example.social_media_api.jwt.JwtProvider;
 import com.example.social_media_api.dto.jwt.JwtRequest;
 import com.example.social_media_api.dto.jwt.JwtResponse;
+import com.example.social_media_api.jwt.JwtAuthentication;
+import com.example.social_media_api.jwt.JwtProvider;
 import com.example.social_media_api.security.CustomUserDetails;
 import com.example.social_media_api.security.SecurityUserDetailsService;
 import io.jsonwebtoken.Claims;
@@ -11,6 +11,7 @@ import jakarta.security.auth.message.AuthException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -21,6 +22,7 @@ import java.util.Map;
 public class AuthServiceImpl implements AuthService {
 
     private final SecurityUserDetailsService userService;
+    private final PasswordEncoder passwordEncoder;
     private final Map<String, String> refreshStorage = new HashMap<>();
     private final JwtProvider jwtProvider;
 
@@ -28,7 +30,7 @@ public class AuthServiceImpl implements AuthService {
 
         final CustomUserDetails user = (CustomUserDetails) userService.loadUserByUsername(authRequest.getUsername());
 
-        if (user.getPassword().equals(authRequest.getPassword())) {
+        if (passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {
 
             final String accessToken = jwtProvider.generateAccessToken(user);
             final String refreshToken = jwtProvider.generateRefreshToken(user);
