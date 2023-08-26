@@ -150,12 +150,11 @@ public class SocialMediaController {
             @ApiResponse(responseCode = "404", description = "Пользователь не существует")
     })
     @GetMapping("/activity-feed")
-    public ResponseEntity<Page<PostDTO>> getUserActivityFeed(
+    public Page<PostDTO> getUserActivityFeed(
             @Parameter(description = "Номер страницы") @RequestParam(value = "page", required = false, defaultValue = "0") int page,
             @Parameter(description = "Размер страницы") @RequestParam(value = "pageSize", required = false, defaultValue = "10") int pageSize) {
 
-        Page<PostDTO> activityFeed = socialMediaService.getUserActivityFeed(page, pageSize);
-        return ResponseEntity.ok(activityFeed);
+        return socialMediaService.getUserActivityFeed(page, pageSize);
     }
 
 
