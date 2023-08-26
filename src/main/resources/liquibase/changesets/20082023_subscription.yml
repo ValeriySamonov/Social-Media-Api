@@ -30,9 +30,6 @@ databaseChangeLog:
               - column:
                   name: subs_status
                   type: SMALLINT
-              - column:
-                  name: created_at
-                  type: TIMESTAMP
             foreignKeys:
               - foreignKey:
                   baseTableName: subscriptions

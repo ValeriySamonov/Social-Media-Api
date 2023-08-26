@@ -6,8 +6,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "subscriptions")
 @Data
@@ -31,9 +29,6 @@ public class Subscription {
 
     @Column(name = "subs_status")
     private SubStatus subStatus;
-
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
 
 }
 
