@@ -1,7 +1,7 @@
 package com.example.social_media_api.config;
 
 import com.example.social_media_api.jwt.JwtFilter;
-import com.example.social_media_api.security.SecurityUserDetailsService;
+import com.example.social_media_api.security.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final SecurityUserDetailsService userDetailsService;
+    private final CustomUserDetailsService userDetailsService;
 
     private final JwtFilter jwtFilter;
 

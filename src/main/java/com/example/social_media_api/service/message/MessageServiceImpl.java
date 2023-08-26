@@ -11,7 +11,7 @@ import com.example.social_media_api.model.User;
 import com.example.social_media_api.repository.MessageRepository;
 import com.example.social_media_api.repository.SubscriptionRepository;
 import com.example.social_media_api.repository.UserRepository;
-import com.example.social_media_api.service.auth.AuthServiceImpl;
+import com.example.social_media_api.service.auth.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +26,7 @@ public class MessageServiceImpl implements MessageService {
     private final MessageRepository messageRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final UserRepository userRepository;
-    private final AuthServiceImpl authServiceImpl;
+    private final AuthService authService;
 
     @Override
     public void sendMessage(MessageDTO messageDTO) {
@@ -65,9 +65,8 @@ public class MessageServiceImpl implements MessageService {
     }
 
     private Long getAuthenticatedUserId() {
-        JwtAuthentication authInfo = authServiceImpl.getAuthInfo();
+        JwtAuthentication authInfo = authService.getAuthInfo();
         return Long.valueOf(authInfo.getName());
-        //return userRepository.findByUsername(authInfo.getUsername()).orElseThrow(UserNotFoundException::new).getId();
     }
 
 }

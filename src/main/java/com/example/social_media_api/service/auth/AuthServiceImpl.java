@@ -23,7 +23,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final SecurityUserDetailsService userService;
     private final PasswordEncoder passwordEncoder;
-    private final Map<String, String> refreshStorage = new HashMap<>();
+    private final Map<String, String> refreshTokenStorage = new HashMap<>();
     private final JwtProvider jwtProvider;
 
     public JwtResponse login(@NonNull JwtRequest authRequest) throws AuthException {
@@ -35,7 +35,7 @@ public class AuthServiceImpl implements AuthService {
             final String accessToken = jwtProvider.generateAccessToken(user);
             final String refreshToken = jwtProvider.generateRefreshToken(user);
 
-            refreshStorage.put(String.valueOf(user.getUserId()), refreshToken);
+            refreshTokenStorage.put(String.valueOf(user.getUserId()), refreshToken);
 
             return new JwtResponse(accessToken, refreshToken);
 
@@ -50,7 +50,7 @@ public class AuthServiceImpl implements AuthService {
 
             final Claims claims = jwtProvider.getRefreshClaims(refreshToken);
             final String userId = claims.getSubject();
-            final String saveRefreshToken = refreshStorage.get(userId);
+            final String saveRefreshToken = refreshTokenStorage.get(userId);
 
             if (saveRefreshToken != null && saveRefreshToken.equals(refreshToken)) {
 
@@ -69,7 +69,7 @@ public class AuthServiceImpl implements AuthService {
 
             final Claims claims = jwtProvider.getRefreshClaims(refreshToken);
             final String userId = claims.getSubject();
-            final String saveRefreshToken = refreshStorage.get(userId);
+            final String saveRefreshToken = refreshTokenStorage.get(userId);
 
             if (saveRefreshToken != null && saveRefreshToken.equals(refreshToken)) {
 
@@ -77,7 +77,7 @@ public class AuthServiceImpl implements AuthService {
                 final String accessToken = jwtProvider.generateAccessToken(user);
                 final String newRefreshToken = jwtProvider.generateRefreshToken(user);
 
-                refreshStorage.put(String.valueOf(user.getUserId()), newRefreshToken);
+                refreshTokenStorage.put(String.valueOf(user.getUserId()), newRefreshToken);
 
                 return new JwtResponse(accessToken, newRefreshToken);
             }

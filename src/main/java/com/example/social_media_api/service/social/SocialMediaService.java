@@ -13,13 +13,13 @@ import java.util.List;
 public interface SocialMediaService {
 
     Long createPost(CreatePostDTO createPostDTO, List<MultipartFile> files);
-    Page<PostDTO> getPostByUserId(Long postOwnerId, int page);
+    Page<PostDTO> getPostByUserId(Long postOwnerId, int page, int pageSize);
     void sendFriendshipRequest(FriendshipDTO friendshipDTO);
     void acceptFriendshipRequest(FriendshipDTO friendshipDTO);
     void declineFriendshipRequest(FriendshipDTO friendshipDTO);
     void removeFriend(FriendshipDTO friendshipDTO);
     void updatePost(Long postId, UpdatePostDTO updatePostDTO, List<MultipartFile> addedFiles) throws IOException;
     void deletePost(Long postId);
-    Page<PostDTO> getUserActivityFeed(int page);
+    Page<PostDTO> getUserActivityFeed(int page, int pageSize);
 
 }
