@@ -5,7 +5,7 @@ import com.example.social_media_api.dto.jwt.JwtResponse;
 import com.example.social_media_api.jwt.JwtAuthentication;
 import com.example.social_media_api.jwt.JwtProvider;
 import com.example.social_media_api.security.CustomUserDetails;
-import com.example.social_media_api.security.SecurityUserDetailsService;
+import com.example.social_media_api.security.CustomUserDetailsService;
 import io.jsonwebtoken.Claims;
 import jakarta.security.auth.message.AuthException;
 import lombok.NonNull;
@@ -21,14 +21,14 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    private final SecurityUserDetailsService userService;
+    private final CustomUserDetailsService customUserDetailsService;
     private final PasswordEncoder passwordEncoder;
     private final Map<String, String> refreshTokenStorage = new HashMap<>();
     private final JwtProvider jwtProvider;
 
     public JwtResponse login(@NonNull JwtRequest authRequest) throws AuthException {
 
-        final CustomUserDetails user = (CustomUserDetails) userService.loadUserByUsername(authRequest.getUsername());
+        final CustomUserDetails user = (CustomUserDetails) customUserDetailsService.loadUserByUsername(authRequest.getUsername());
 
         if (passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {
 
@@ -54,7 +54,7 @@ public class AuthServiceImpl implements AuthService {
 
             if (saveRefreshToken != null && saveRefreshToken.equals(refreshToken)) {
 
-                final CustomUserDetails user = (CustomUserDetails) userService.loadUserById(Long.valueOf(userId));
+                final CustomUserDetails user = (CustomUserDetails) customUserDetailsService.loadUserById(Long.valueOf(userId));
                 final String accessToken = jwtProvider.generateAccessToken(user);
 
                 return new JwtResponse(accessToken, null);
@@ -63,7 +63,7 @@ public class AuthServiceImpl implements AuthService {
         return new JwtResponse(null, null);
     }
 
-    public JwtResponse refresh(@NonNull String refreshToken) throws AuthException {
+    public JwtResponse getNewRefreshToken(@NonNull String refreshToken) throws AuthException {
 
         if (jwtProvider.validateRefreshToken(refreshToken)) {
 
@@ -73,7 +73,7 @@ public class AuthServiceImpl implements AuthService {
 
             if (saveRefreshToken != null && saveRefreshToken.equals(refreshToken)) {
 
-                final CustomUserDetails user = (CustomUserDetails) userService.loadUserById(Long.valueOf(userId));
+                final CustomUserDetails user = (CustomUserDetails) customUserDetailsService.loadUserById(Long.valueOf(userId));
                 final String accessToken = jwtProvider.generateAccessToken(user);
                 final String newRefreshToken = jwtProvider.generateRefreshToken(user);
 
