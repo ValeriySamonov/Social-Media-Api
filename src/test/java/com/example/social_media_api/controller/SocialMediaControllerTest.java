@@ -2,8 +2,8 @@ package com.example.social_media_api.controller;
 
 import com.example.social_media_api.SocialMediaApiApplication;
 import com.example.social_media_api.container.BaseIntegrationContainer;
-import com.example.social_media_api.data.GetAuthentication;
 import com.example.social_media_api.dto.friendship.FriendshipDTO;
+import com.example.social_media_api.dto.jwt.JwtRequest;
 import com.example.social_media_api.dto.post.CreatePostDTO;
 import com.example.social_media_api.dto.post.UpdatePostDTO;
 import com.example.social_media_api.enums.FriendStatus;
@@ -12,6 +12,7 @@ import com.example.social_media_api.model.Post;
 import com.example.social_media_api.model.Subscription;
 import com.example.social_media_api.repository.PostRepository;
 import com.example.social_media_api.repository.SubscriptionRepository;
+import com.example.social_media_api.service.auth.AuthService;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,6 +49,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Sql(scripts = "/sql/data-test-social.sql") // Путь к скрипту с тестовыми данными
 public class SocialMediaControllerTest extends BaseIntegrationContainer {
 
+    private static String accessToken;
+
     @Autowired
     MockMvc mockMvc;
 
@@ -58,15 +61,15 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
     SubscriptionRepository subscriptionRepository;
 
     @Autowired
-    private GetAuthentication getAuthentication;
+    AuthService authService;
 
     @BeforeEach
     void prepareForTest() {
-        getAuthentication.createAuthentication();
+        getAccessToken();
     }
 
     @AfterAll
-    static void deleteFilesAndDirectory() throws IOException {
+    static void deleteFilesAndDirectory() {
         deleteDirectory(new File("uploads/pictures_test"));
     }
 
@@ -85,6 +88,7 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
         mockMvc.perform(multipart("/api/posts")
                         .file(imageFile1)
                         .file(imageFile2)
+                        .header("Authorization", "Bearer " + accessToken)
                         .flashAttr("createPostDTO", createPostDTO))
                 .andExpect(status().isOk());
 
@@ -126,6 +130,7 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
                             request.setMethod("PUT");
                             return request;
                         })
+                        .header("Authorization", "Bearer " + accessToken)
                         .flashAttr("updatePostDTO", updatePostDTO))
                 .andExpect(status().isOk());
 
@@ -145,7 +150,8 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
         int page = 0;
         int pageSize = 10;
 
-        mockMvc.perform(get("/api/posts/" + postOwnerId + "?page=" + page + "&pageSize=" + pageSize))
+        mockMvc.perform(get("/api/posts/" + postOwnerId + "?page=" + page + "&pageSize=" + pageSize)
+                .header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isNotEmpty());
@@ -159,6 +165,7 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
         long postId = 1L;
 
         mockMvc.perform(delete("/api/posts/" + postId)
+                        .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
@@ -174,6 +181,7 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
         long userId = 1L;
 
         mockMvc.perform(patch("/api/friendship/request")
+                        .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(friendshipDTO)))
                 .andExpect(status().isOk());
@@ -197,6 +205,7 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
         long userId = 1L;
 
         mockMvc.perform(patch("/api/friendship/accept")
+                        .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(friendshipDTO)))
                 .andExpect(status().isOk());
@@ -219,6 +228,7 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
         long userId = 1L;
 
         mockMvc.perform(patch("/api/friendship/reject")
+                        .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(friendshipDTO)))
                 .andExpect(status().isOk());
@@ -242,6 +252,7 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
         long userId = 1L;
 
         mockMvc.perform(patch("/api/friendship/unfriend")
+                        .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(friendshipDTO)))
                 .andExpect(status().isOk());
@@ -262,13 +273,14 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
         int page = 0;
         int pageSize = 10;
 
-        mockMvc.perform(get("/api/activity-feed" + "?page=" + page + "&pageSize=" + pageSize))
+        mockMvc.perform(get("/api/activity-feed" + "?page=" + page + "&pageSize=" + pageSize)
+                .header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isNotEmpty());
     }
-
-    public static void deleteDirectory(File directory) throws IOException {
+@SneakyThrows
+    private static void deleteDirectory(File directory) {
         if (directory.isDirectory()) {
             Path path = directory.toPath();
             Files.walkFileTree(path, new SimpleFileVisitor<>() {
@@ -287,5 +299,10 @@ public class SocialMediaControllerTest extends BaseIntegrationContainer {
         }
     }
 
+    @SneakyThrows
+    private void getAccessToken() {
+        JwtRequest authRequest = new JwtRequest("user1", "password1");
+        accessToken = authService.login(authRequest).getAccessToken();
+    }
 
 }

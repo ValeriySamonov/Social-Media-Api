@@ -29,15 +29,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class UserControllerTest extends BaseIntegrationContainer {
 
     @Autowired
-    MockMvc  mockMvc;
+    MockMvc mockMvc;
 
     @Autowired
-    private UserRepository userRepository;
+    UserRepository userRepository;
 
     @DisplayName("Тест для метода создания пользователя")
     @Test
     @SneakyThrows
-
     void createUserTest() {
 
         CreateUserDTO createUserDTO = new CreateUserDTO()

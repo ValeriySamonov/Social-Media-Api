@@ -9,6 +9,6 @@ public interface AuthService {
 
     JwtResponse login(JwtRequest authRequest) throws AuthException;
     JwtResponse getAccessToken(String refreshToken);
-    JwtResponse refresh(String refreshToken) throws AuthException;
+    JwtResponse getNewRefreshToken(String refreshToken) throws AuthException;
     JwtAuthentication getAuthInfo();
 }

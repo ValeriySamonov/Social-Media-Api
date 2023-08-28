@@ -2,10 +2,11 @@ package com.example.social_media_api.controller;
 
 import com.example.social_media_api.SocialMediaApiApplication;
 import com.example.social_media_api.container.BaseIntegrationContainer;
-import com.example.social_media_api.data.GetAuthentication;
+import com.example.social_media_api.dto.jwt.JwtRequest;
 import com.example.social_media_api.dto.message.MessageDTO;
 import com.example.social_media_api.model.Message;
 import com.example.social_media_api.repository.MessageRepository;
+import com.example.social_media_api.service.auth.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +33,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Sql(scripts = "/sql/data-test-message.sql") // Путь к скрипту с тестовыми данными
 public class MessageControllerTest extends BaseIntegrationContainer {
 
+    private static String accessToken;
+
     @Autowired
     MockMvc mockMvc;
 
@@ -39,11 +42,11 @@ public class MessageControllerTest extends BaseIntegrationContainer {
     MessageRepository messageRepository;
 
     @Autowired
-    GetAuthentication getAuthentication;
+    AuthService authService;
 
     @BeforeEach
     void prepareForTest() {
-        getAuthentication.createAuthentication();
+        getAccessToken();
     }
 
     @DisplayName("Тест для метода отправки сообщения")
@@ -59,6 +62,7 @@ public class MessageControllerTest extends BaseIntegrationContainer {
         String jsonMessage = new ObjectMapper().writeValueAsString(messageDTO);
 
         mockMvc.perform(post("/api/messages")
+                        .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonMessage))
                 .andExpect(status().isOk());
@@ -67,6 +71,12 @@ public class MessageControllerTest extends BaseIntegrationContainer {
         assertFalse(messages.isEmpty());
         assertEquals(messageDTO.getContent(), messages.get(0).getContent());
 
+    }
+
+    @SneakyThrows
+    private void getAccessToken() {
+        JwtRequest authRequest = new JwtRequest("user1", "password1");
+        accessToken = authService.login(authRequest).getAccessToken();
     }
 
 }

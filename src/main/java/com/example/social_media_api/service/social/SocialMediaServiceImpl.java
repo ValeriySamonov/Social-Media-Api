@@ -38,7 +38,6 @@ public class SocialMediaServiceImpl implements SocialMediaService {
 
     private final ImageFileAction imageFileAction;
     private final MapEntityToDTO mapEntityToDTO;
-
     private final UserRepository userRepository;
     private final PostImageRepository postImageRepository;
     private final PostRepository postRepository;
