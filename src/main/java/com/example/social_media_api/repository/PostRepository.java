@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
     Post findByUserIdAndId(Long userId, Long postId);
-    List<Post> findByUserIdIn(List<Long> userIds);
+    Page<Post> findByUserIdIn(List<Long> userIds, Pageable pageable);
 
     Page<Post> findByUserId(Long id, Pageable pageable);
 }
