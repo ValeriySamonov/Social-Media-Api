@@ -15,6 +15,7 @@ public class PostImage {
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "post_id")
     private Post post;
 
     private String fileName;
