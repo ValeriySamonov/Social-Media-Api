@@ -22,7 +22,10 @@ import com.example.social_media_api.service.auth.AuthService;
 import com.example.social_media_api.utilities.ImageFileAction;
 import com.example.social_media_api.utilities.mapper.MapEntityToDTO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -197,21 +200,18 @@ public class SocialMediaServiceImpl implements SocialMediaService {
 
         Pageable pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
 
-        List<Subscription> subscriptions = subscriptionRepository.findBySubscriberIdAndSubscriptionStatusIn(getAuthenticatedUserId(), SubStatus.USER1, SubStatus.BOTH);
+        List<Subscription> subscriptions = subscriptionRepository.findBySubscriberIdAndSubscriptionStatusIn(getAuthenticatedUserId(),
+                SubStatus.USER1, SubStatus.BOTH);
 
         List<Long> targetUserIds = subscriptions.stream()
                 .map(Subscription::getTargetUser)
                 .map(User::getId)
                 .toList();
 
-        List<Post> activityFeedPosts = postRepository.findByUserIdIn(targetUserIds);
+        Page<Post> activityFeedPosts = postRepository.findByUserIdIn(targetUserIds, pageable);
 
+        return activityFeedPosts.map(mapEntityToDTO::mapToPostDTO);
 
-        List<PostDTO> postDTOList = activityFeedPosts.stream()
-                .map(mapEntityToDTO::mapToPostDTO)
-                .toList();
-
-        return new PageImpl<>(postDTOList, pageable, activityFeedPosts.size());
     }
 
     private Long getAuthenticatedUserId() {
