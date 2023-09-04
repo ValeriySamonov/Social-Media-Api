@@ -5,7 +5,7 @@ import com.example.social_media_api.enums.SubStatus;
 import com.example.social_media_api.exception.UserCanNotWriteException;
 import com.example.social_media_api.exception.UserNotFoundException;
 import com.example.social_media_api.exception.UsersAreNotFriendsException;
-import com.example.social_media_api.jwt.JwtAuthentication;
+import com.example.social_media_api.security.jwt.JwtAuthentication;
 import com.example.social_media_api.model.Message;
 import com.example.social_media_api.model.User;
 import com.example.social_media_api.repository.MessageRepository;

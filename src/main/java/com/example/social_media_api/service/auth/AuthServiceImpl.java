@@ -2,8 +2,8 @@ package com.example.social_media_api.service.auth;
 
 import com.example.social_media_api.dto.jwt.JwtRequest;
 import com.example.social_media_api.dto.jwt.JwtResponse;
-import com.example.social_media_api.jwt.JwtAuthentication;
-import com.example.social_media_api.jwt.JwtProvider;
+import com.example.social_media_api.security.jwt.JwtAuthentication;
+import com.example.social_media_api.security.jwt.JwtProvider;
 import com.example.social_media_api.security.CustomUserDetails;
 import com.example.social_media_api.security.CustomUserDetailsService;
 import io.jsonwebtoken.Claims;

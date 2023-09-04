@@ -1,4 +1,4 @@
-package com.example.social_media_api.jwt;
+package com.example.social_media_api.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.io.IOException;

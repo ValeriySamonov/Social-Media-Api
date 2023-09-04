@@ -1,4 +1,4 @@
-package com.example.social_media_api.jwt;
+package com.example.social_media_api.security.jwt;
 
 import com.example.social_media_api.security.CustomUserDetails;
 import io.jsonwebtoken.*;

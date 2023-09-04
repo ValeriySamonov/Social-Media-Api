@@ -1,7 +1,6 @@
 package com.example.social_media_api.controller;
 
-import com.example.social_media_api.SocialMediaApiApplication;
-import com.example.social_media_api.container.BaseIntegrationContainer;
+import com.example.social_media_api.TestSocialMediaApiApplication;
 import com.example.social_media_api.dto.jwt.JwtRequest;
 import com.example.social_media_api.dto.jwt.JwtResponse;
 import com.example.social_media_api.dto.jwt.RefreshJwtRequest;
@@ -25,12 +24,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(classes = SocialMediaApiApplication.class)
+@SpringBootTest(classes = TestSocialMediaApiApplication.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
 @RequiredArgsConstructor
 @Sql(scripts = "/sql/data-test-auth.sql") // Путь к скрипту с тестовыми данными
-public class AuthControllerTest extends BaseIntegrationContainer {
+public class AuthControllerTest {
 
     private static JwtResponse jwtResponse;
 
