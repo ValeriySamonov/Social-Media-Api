@@ -9,7 +9,7 @@ import com.example.social_media_api.enums.SubStatus;
 import com.example.social_media_api.exception.SubscriptionDoesNotExistException;
 import com.example.social_media_api.exception.UserCanNotSubscribeException;
 import com.example.social_media_api.exception.UserNotFoundException;
-import com.example.social_media_api.jwt.JwtAuthentication;
+import com.example.social_media_api.security.jwt.JwtAuthentication;
 import com.example.social_media_api.model.Post;
 import com.example.social_media_api.model.PostImage;
 import com.example.social_media_api.model.Subscription;

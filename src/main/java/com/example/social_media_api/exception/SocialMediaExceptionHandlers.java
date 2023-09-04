@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class SocialMediaExceptionHandlers{
 
     @ExceptionHandler(value = {UserNotFoundException.class})
-    public ResponseEntity<String> handleUserNotFound(UserNotFoundException ex) {
+    public ResponseEntity<String> handleUserNotFoundException(UserNotFoundException ex) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body("Пользователь не существует: " + ex.getMessage());

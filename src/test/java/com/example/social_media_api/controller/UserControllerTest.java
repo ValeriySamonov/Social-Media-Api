@@ -1,7 +1,6 @@
 package com.example.social_media_api.controller;
 
-import com.example.social_media_api.SocialMediaApiApplication;
-import com.example.social_media_api.container.BaseIntegrationContainer;
+import com.example.social_media_api.TestSocialMediaApiApplication;
 import com.example.social_media_api.dto.user.CreateUserDTO;
 import com.example.social_media_api.model.User;
 import com.example.social_media_api.repository.UserRepository;
@@ -23,10 +22,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(classes = SocialMediaApiApplication.class)
+@SpringBootTest(classes = TestSocialMediaApiApplication.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
-public class UserControllerTest extends BaseIntegrationContainer {
+public class UserControllerTest {
 
     @Autowired
     MockMvc mockMvc;

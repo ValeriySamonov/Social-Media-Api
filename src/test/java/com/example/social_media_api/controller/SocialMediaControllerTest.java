@@ -1,7 +1,6 @@
 package com.example.social_media_api.controller;
 
-import com.example.social_media_api.SocialMediaApiApplication;
-import com.example.social_media_api.container.BaseIntegrationContainer;
+import com.example.social_media_api.TestSocialMediaApiApplication;
 import com.example.social_media_api.dto.friendship.FriendshipDTO;
 import com.example.social_media_api.dto.jwt.JwtRequest;
 import com.example.social_media_api.dto.post.CreatePostDTO;
@@ -24,6 +23,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,12 +43,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest(classes = SocialMediaApiApplication.class)
+@SpringBootTest(classes = TestSocialMediaApiApplication.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@TestPropertySource(locations = "classpath:application-test.properties")
 @AutoConfigureMockMvc
 @Sql(scripts = "/sql/data-test-social.sql") // Путь к скрипту с тестовыми данными
-public class SocialMediaControllerTest extends BaseIntegrationContainer {
-
+public class SocialMediaControllerTest {
     private static String accessToken;
 
     @Autowired

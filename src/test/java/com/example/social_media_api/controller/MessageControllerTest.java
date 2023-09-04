@@ -1,7 +1,6 @@
 package com.example.social_media_api.controller;
 
-import com.example.social_media_api.SocialMediaApiApplication;
-import com.example.social_media_api.container.BaseIntegrationContainer;
+import com.example.social_media_api.TestSocialMediaApiApplication;
 import com.example.social_media_api.dto.jwt.JwtRequest;
 import com.example.social_media_api.dto.message.MessageDTO;
 import com.example.social_media_api.model.Message;
@@ -27,11 +26,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(classes = SocialMediaApiApplication.class)
+@SpringBootTest(classes = TestSocialMediaApiApplication.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
 @Sql(scripts = "/sql/data-test-message.sql") // Путь к скрипту с тестовыми данными
-public class MessageControllerTest extends BaseIntegrationContainer {
+public class MessageControllerTest {
 
     private static String accessToken;
 
